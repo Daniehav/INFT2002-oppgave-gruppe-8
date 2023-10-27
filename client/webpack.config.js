@@ -1,6 +1,7 @@
 // @flow
 
 const path = require('path');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   entry: './src/index.tsx', // Initial file to bundle
@@ -18,10 +19,24 @@ module.exports = {
     rules: [
       {
         // Use babel to parse .tsx files in the src folder
-        test: /\.tsx$/,
+        test: /\.(ts|tsx)$/,
         include: path.resolve(__dirname, 'src'),
         use: ['babel-loader'],
       },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader, // instead of style-loader
+          'css-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|svg)$/, 
+        use: 'file-loader',
+      },
     ],
   },
+  plugins: [
+    new MiniCssExtractPlugin(),
+  ],
 };
