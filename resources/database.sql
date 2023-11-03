@@ -77,3 +77,13 @@ CREATE TABLE Favorites (
   FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (answer_id) REFERENCES Answers(answer_id) ON DELETE CASCADE
 );
+
+CREATE TABLE UserVotes (
+  vote_id INT AUTO_INCREMENT PRIMARY KEY
+  user_id INT,
+  answer_id INT,
+  vote_type ENUM('upvote', 'downvote'),
+  FOREIGN KEY (user_id) REFERENCES Users(user_id),
+  FOREIGN KEY (answer_id) REFERENCES Answers(answer_id)
+);
+
