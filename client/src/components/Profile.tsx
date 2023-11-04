@@ -12,6 +12,7 @@ function Profile() {
     const [bioText, setBioText] = useState(profile.bio)
     const [edit, setEdit] = useState(false)
     const navigate = useNavigate()
+console.log(profile);
 
     const updateProfile = async () => {
         try {
@@ -24,7 +25,7 @@ function Profile() {
     }
 
     return ( 
-        <div className="container">
+        <div className="container justify-center">
             <div className="user-profile">
                 <div className="card bg-white text-black user-card">
                     <h3 className='text-accent fs-2'>Profile</h3>

@@ -1,7 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Familjen+Grotesk&display=swap");
 body{
     margin: 0;
+    min-height: 100vh;
     overflow-x: hidden;
+    background-color: var(--light-grey);
 }
 :root{
     --light-grey: #ededed;
@@ -28,7 +30,6 @@ body{
 }
 
 .app{
-    min-height: 100vh;
     font-family: 'Familjen Grotesk';
 }
 
@@ -52,6 +53,21 @@ body{
 .fs-3{font-size: var(--fs-3);}
 .fs-4{font-size: var(--fs-4);}
 .fs-5{font-size: var(--fs-5);}
+
+.container{
+    position: relative;
+    top: 10vh;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.home-container {
+    width: calc(100% - 12rem);
+
+}
+
 
 .flex{
     display: flex;
@@ -87,6 +103,10 @@ body{
     gap:0.5em;
 }
 
+.justify-center{
+    justify-content: center;
+}
+
 .space-between{
     justify-content: space-between;
     align-items: baseline;
@@ -105,9 +125,25 @@ body{
 }
 
 .header{
+    width: 100vw;
+    position: fixed;
     height: 10vh;
     align-items: center;
-    border-bottom: solid 1px var(--grey);
+    display: flex;
+    justify-content: space-around;
+    border-bottom: solid 2px var(--grey);
+    z-index: 3;
+}
+
+.subheader{
+    margin-top: 2rem;
+    height: 5vh;
+    align-items: center;
+    border-bottom: solid 2px var(--grey);
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+
 }
 
 .button{
@@ -120,6 +156,25 @@ body{
     border-radius: 16px;
     padding: 1em;
     margin-top: 2em;
+}
+
+.sidebar{
+    z-index: 2;
+    position: fixed;
+    top: 10vh;
+    right: 0;
+    height: 90vh;
+    width: 10rem;
+    border-left: 2px solid var(--grey);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.sidebar-section{
+    height: 100%;
+    border-bottom: 1px solid var(--grey)
 }
 
 
@@ -194,13 +249,7 @@ textarea{
     opacity: 1;
 }
 
-.container{
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+
 
 .auth--card{
     width: 20rem;
@@ -304,6 +353,13 @@ textarea{
     width: 100%;
 }
 
+.hide-onclick{
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: 3;
+}
+
 
 .user-menu{
     display: flex;
@@ -320,6 +376,7 @@ textarea{
     transform-origin:top;
     transform: scaleY(1);
     transition: transform 100ms;
+    z-index: 1;
 }
 
 .user-menu--hide{
@@ -344,4 +401,8 @@ textarea{
 
 input[type="file"] {
     display: none;
+}
+
+.icon-s{
+    width: 1.5rem;
 }

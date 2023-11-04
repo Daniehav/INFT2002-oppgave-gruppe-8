@@ -9,6 +9,7 @@ const router = express.Router()
 
 export type User = {
     id: number,
+    email: string,
     username: string,
     hashed_password: Buffer,
     salt: Buffer
@@ -41,7 +42,7 @@ router.post('/signup', (req: any, res, next) => {
     crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', (err, hashedPassword) => {
       if (err) return next(err);
       authService
-        .createUser(req.body.username, hashedPassword, salt)
+        .createUser(req.body.username, req.body.email, hashedPassword, salt)
             .then((user: User) => {
                 req.login(user, (err: Error) => {
                     if (err) { return next(err); }
