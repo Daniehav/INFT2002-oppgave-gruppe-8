@@ -2,7 +2,7 @@ import express, {Response, NextFunction} from 'express'
 import { questionService, authService } from '../service'
 
 export type Question = {
-    id:  number,
+    question_id:  number,
     userId: number,
     title: string,
     body: string,
@@ -10,7 +10,7 @@ export type Question = {
 
 const router = express.Router()
 
-router.post('/create', isAuthenticated, async (req, res) => {
+router.post('/create', isAuthenticated, async (req : any, res) => {
     try {
         const user = await authService.getUser(req.session.passport.user.username);
         const question = await questionService.createQuestion(user.user_id, req.body.title, req.body.question);
@@ -39,7 +39,7 @@ router.get('/:questionId', isAuthenticated, (req, res) => {
         });
 });
 
-router.put('/:questionId', isAuthenticated, async (req, res) => {
+router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
     try {
         const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         const questionId = parseInt(req.params.questionId, 10);
@@ -71,7 +71,7 @@ router.get('/', isAuthenticated, (req, res) => {
         });
 });
 
-router.delete('/:questionId', isAuthenticated, async (req, res) => {
+router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
 

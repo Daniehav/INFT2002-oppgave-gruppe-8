@@ -4,7 +4,6 @@ import { User } from './routers/auth-router';
 import { Question } from './routers/question-router';
 import { Profile } from './routers/profile-router';
 
-
 class AuthService {
     createUser(username: string, email: string, hashedPassword: Buffer, salt: Buffer) {
         return new Promise<User>((resolve, reject) => {
