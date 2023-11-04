@@ -90,6 +90,22 @@ class QuestionService {
         });
     }
     
+    deleteQuestion(questionId: number, userId: number): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const query = 'DELETE FROM Questions WHERE question_id = ? AND user_id = ?';
+
+            pool.query(query, [questionId, userId], (err, res: ResultSetHeader) => {
+                if (err) {
+                    return reject(err);
+                }
+                
+                if (res.affectedRows === 0) {
+                    return reject(new Error('No question found with the given ID for this user, or you do not have the permission to delete it.'));
+                }
+                resolve(true);
+            });
+        });
+    }
 
     getQuestionById(questionId: number): Promise<Question> {
         return new Promise((resolve, reject) => {
