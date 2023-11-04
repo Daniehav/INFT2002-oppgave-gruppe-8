@@ -23,20 +23,19 @@ router.post('/create', isAuthenticated, async (req : any, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, (req, res) => {
-    const questionId = parseInt(req.params.questionId);
-    questionService.getQuestionById(questionId)
-        .then(question => {
-            if (question) {
-                res.status(200).json(question);
-            } else {
-                res.status(404).send('Question not found');
-            }
-        })
-        .catch(error => {
-            console.error('Failed to fetch question:', error);
-            res.status(500).send('Internal Server Error');
-        });
+router.get('/:questionId', isAuthenticated, async (req: any, res: Response) => {
+    try {
+        const questionId = parseInt(req.params.questionId);
+        const question = await questionService.getQuestionById(questionId);
+        if (question) {
+            res.status(200).json(question);
+        } else {
+            res.status(404).send('Question not found');
+        }
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
@@ -60,15 +59,14 @@ router.put('/:questionId', isAuthenticated, async (req : any, res : Response) =>
     }
 });
 
-router.get('/', isAuthenticated, (req, res) => {
-    questionService.getAllQuestions()
-        .then(questions => {
-            res.status(200).json(questions);
-        })
-        .catch(error => {
-            console.error('Failed to fetch questions:', error);
-            res.status(500).send('Internal Server Error');
-        });
+router.get('/', isAuthenticated, async (req: any, res: Response) => {
+    try {
+        const questions = await questionService.getAllQuestions();
+        res.status(200).json(questions);
+    } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
