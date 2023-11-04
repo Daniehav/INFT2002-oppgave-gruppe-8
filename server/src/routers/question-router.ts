@@ -70,17 +70,6 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
     }
 });
 
-router.delete('/', isAuthenticated, (req, res) => {
-    questionService.getAllQuestions()
-        .then(questions => {
-            res.status(200).json(questions);
-        })
-        .catch(error => {
-            console.error('Failed to fetch questions:', error);
-            res.status(500).send('Internal Server Error');
-        });
-});
-
 router.get('/', isAuthenticated, (req, res) => {
     questionService.getAllQuestions()
         .then(questions => {
