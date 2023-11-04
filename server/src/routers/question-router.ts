@@ -1,6 +1,5 @@
 import express, {Response, NextFunction} from 'express'
 import { questionService, authService } from '../service'
-import { User } from './auth-router'
 
 export type Question = {
     id:  number,
