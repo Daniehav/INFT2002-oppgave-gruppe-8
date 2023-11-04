@@ -8,6 +8,7 @@ import AuthenticationPage from './components/Authentication';
 import { ThemeContext, ThemeProvider, AuthProvider, AuthContext, ProfileProvider, ProfileContext } from './context/Context';
 import './app.css'
 import Header from './components/Header'
+import QuestionList from './components/QuestionList';
 
 
 function App() {
@@ -29,7 +30,7 @@ function App() {
 		} 
 		checkAuth()
     }, []);
-
+	// Jeg har ikke forståt hvordan man passerer verdier over når man bruker funksjon istedenfor component
 	return(
 		<div className={`app bg-light-grey text-black ${isDark && 'dark-mode'}`}>
 			{isAuthenticated && <Header/>}
@@ -37,6 +38,7 @@ function App() {
 				<Route path="/" element={<Home/>} />
 				<Route path="/login" element={<AuthenticationPage/>} />
 				<Route path="/profile" element={<Profile/>} />
+				<Route path="/question/search/:query/results" loader={({params}) => {return params.query}} element={<QuestionList/>} />
 			</Routes>
 		</div>
   )

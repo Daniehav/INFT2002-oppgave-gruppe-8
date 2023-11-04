@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Profile } from "./types";
+import { Profile, Question } from "./types";
 import FormData from "form-data"
 import fs from 'fs'
 
@@ -31,5 +31,12 @@ class ProfileService {
     }
 }
 
+class QuestionService {
+    search(query: string){
+        return axios.get<Question[]>('/question/search/'+query)
+    }
+}
+
 export const authService = new AuthService()
 export const profileService = new ProfileService()
+export const questionService = new QuestionService()

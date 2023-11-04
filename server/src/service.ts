@@ -2,6 +2,7 @@ import pool from './mysql-pool';
 import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { User } from './routers/auth-router';
 import { Profile } from './routers/profile-router';
+import { Question } from './routers/question-router'
 
 
 class AuthService {
@@ -67,5 +68,18 @@ class ProfileService {
 
     }
 }
+
+class QuestionService {
+    search(query: string){
+        query = '%'+query+'%';
+        return new Promise<Question[]>((resolve, reject) => {
+            pool.query("SELECT * FROM Questions WHERE (title) LIKE (?)", [query], (err, results: RowDataPacket[]) => {
+                if (err) return reject(err);
+                resolve(results as Question[])
+            });
+        })
+    }
+}
 export const authService = new AuthService();
 export const profileService = new ProfileService();
+export const questionService = new QuestionService();
