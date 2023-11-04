@@ -4,7 +4,6 @@ import UploadImage from './UploadImage'
 import defaultPfp from '../assets/default-pfp.png'
 import { authService, profileService } from '../service'
 import { AuthContext, ProfileContext } from '../context/Context'
-import Pfp from './Pfp'
 
 function AuthenticationPage() {
     
@@ -13,7 +12,7 @@ function AuthenticationPage() {
     
     
     return(
-        <div className='container'>
+        <div className='container justify-center'>
             {showSignIn && <SignInForm />}
             {!showSignIn && <SignUpForm signedUp={signedUp} setSignedUp={setSignedUp} />}
             {showSignIn && <p onClick={() => setShowSignIn(false)} className="center pointer fs-4 text-grey">or Create An Account</p>}
@@ -29,6 +28,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
     
     const defaultFormFields = {
         username:'',
+        email: '',
         password:'',
         confirmPassword:'',
     }
@@ -39,7 +39,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
     const navigate = useNavigate()
     
     const [formFields,setFormFields] = useState(defaultFormFields)
-    const {username,password,confirmPassword} = formFields
+    const {username, email,password,confirmPassword} = formFields
     const [duplError, setDuplError] = useState(false)
     const [profilePicture, setProfilePicture] = useState<string | null>(null)
     const [bioText, setBioText] = useState('')
@@ -54,7 +54,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
         e.preventDefault()
         if(!username || !password || password !== confirmPassword) return;
         setDuplError(false)
-        authService.signUp(username, password)
+        authService.signUp(username, email, password)
         .then((userId) => {
             setProfile(prev => {
                 return {
@@ -85,6 +85,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
                 <h3 className="text-accent">Sign up</h3>
                 <form onSubmit={signUp}>
                     <FormInput label="Username" type="text" name="username" onChange={handleChange} value={username} />
+                    <FormInput label="Email" type="text" name="email" onChange={handleChange} value={email} />
                     <FormInput label="Password" type="password" name="password" onChange={handleChange} value={password} />
                     <FormInput label="Confirm Password" type="password" name="confirmPassword" onChange={handleChange} value={confirmPassword} />
                     <button type="submit" className="auth-button fs-4">Sign Up</button>
