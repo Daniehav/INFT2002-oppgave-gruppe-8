@@ -132,3 +132,4 @@ class ProfileService {
 }
 export const authService = new AuthService();
 export const profileService = new ProfileService();
+export const questionService = new QuestionService();
