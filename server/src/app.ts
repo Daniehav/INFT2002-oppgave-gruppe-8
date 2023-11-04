@@ -1,6 +1,7 @@
 import express from 'express';
 import authRouter from './routers/auth-router'
 import profileRouter from './routers/profile-router'
+import questionRouter from './routers/question-router'
 import passport from 'passport'
 import session from 'express-session'
 var MySQLStore = require('express-mysql-session')(session);
@@ -35,6 +36,7 @@ app.use(passport.authenticate('session'));
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/profile', profileRouter);
+app.use('/api/v1/questions', questionRouter);
 
 export default app;
 
