@@ -1,6 +1,5 @@
 import express, {Response, NextFunction} from 'express'
 import { questionService, authService } from '../service'
-import { User } from './auth-router'
 
 export type Question = {
     id:  number,
@@ -13,13 +12,8 @@ const router = express.Router()
 
 router.post('/create', isAuthenticated, async (req, res) => {
     try {
-        const userId = parseInt(req.body.user_id, 10);
-        if (isNaN(userId)) {
-            return res.status(400).send('Invalid user ID');
-        }
-        
-        await authService.getUserById(userId);
-        const question = await questionService.createQuestion(userId, req.body.title, req.body.question);
+        const user = await authService.getUser(req.session.passport.user.username);
+        const question = await questionService.createQuestion(user.user_id, req.body.title, req.body.question);
         res.status(201).json(question);
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -47,12 +41,8 @@ router.get('/:questionId', isAuthenticated, (req, res) => {
 
 router.put('/:questionId', isAuthenticated, async (req, res) => {
     try {
-        const userId = parseInt(req.body.user_id, 10);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         const questionId = parseInt(req.params.questionId, 10);
-
-        if (isNaN(userId)) {
-            return res.status(400).send('Invalid user ID');
-        }
         
         const fetchedQuestion = await questionService.getQuestionById(questionId);
 
@@ -68,17 +58,6 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
         }
         res.status(500).send('Internal Server Error');
     }
-});
-
-router.delete('/', isAuthenticated, (req, res) => {
-    questionService.getAllQuestions()
-        .then(questions => {
-            res.status(200).json(questions);
-        })
-        .catch(error => {
-            console.error('Failed to fetch questions:', error);
-            res.status(500).send('Internal Server Error');
-        });
 });
 
 router.get('/', isAuthenticated, (req, res) => {
@@ -100,7 +79,8 @@ router.delete('/:questionId', isAuthenticated, async (req, res) => {
             return res.status(400).send('Invalid question ID');
         }
         const question = await questionService.getQuestionById(questionId); // check if question exist
-        await questionService.deleteQuestion(question.id, 1);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
+        await questionService.deleteQuestion(question.question_id, userId);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No question found') {
