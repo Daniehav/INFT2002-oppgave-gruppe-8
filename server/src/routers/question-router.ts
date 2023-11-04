@@ -4,6 +4,7 @@ import { User } from './auth-router'
 
 export type Question = {
     id:  number,
+    userId: number,
     title: string,
     body: string,
 }
@@ -42,6 +43,31 @@ router.get('/:questionId', isAuthenticated, (req, res) => {
             console.error('Failed to fetch question:', error);
             res.status(500).send('Internal Server Error');
         });
+});
+
+router.put('/:questionId', isAuthenticated, async (req, res) => {
+    try {
+        const userId = parseInt(req.body.user_id, 10);
+        const questionId = parseInt(req.params.questionId, 10);
+
+        if (isNaN(userId)) {
+            return res.status(400).send('Invalid user ID');
+        }
+        
+        const fetchedQuestion = await questionService.getQuestionById(questionId);
+
+        if (!fetchedQuestion) {
+            return res.status(404).send('Question not found');
+        }
+
+        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.question);
+        res.status(200).json(question); 
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'User not found') {
+            return res.status(400).send('Invalid user ID');
+        }
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.get('/', isAuthenticated, (req, res) => {

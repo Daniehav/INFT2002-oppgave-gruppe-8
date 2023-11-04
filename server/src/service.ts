@@ -65,6 +65,32 @@ class QuestionService {
         });
     }
 
+    updateQuestion(questionId: number, userId: number, title: string, body: string) {
+        return new Promise<void>((resolve, reject) => {
+            const checkOwnershipQuery = 'SELECT * FROM Questions WHERE question_id = ? AND user_id = ?';
+            pool.query(checkOwnershipQuery, [questionId, userId], (err, res: RowDataPacket[]) => {
+                if (err) {
+                    return reject(err);
+                }
+                if (res.length === 0) {
+                    return reject(new Error('No question found with this ID for the user'));
+                }
+    
+                const updateQuery = 'UPDATE Questions SET title = ?, body = ? WHERE question_id = ? AND user_id = ?';
+                pool.query(updateQuery, [title, body, questionId, userId], (updateErr, updateRes: ResultSetHeader) => {
+                    if (updateErr) {
+                        return reject(updateErr);
+                    }
+                    if (updateRes.affectedRows === 0) {
+                        return reject(new Error('Question could not be updated'));
+                    }
+                    resolve();
+                });
+            });
+        });
+    }
+    
+
     getQuestionById(questionId: number): Promise<Question> {
         return new Promise((resolve, reject) => {
             pool.query(
