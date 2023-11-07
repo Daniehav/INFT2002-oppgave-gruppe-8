@@ -23,9 +23,8 @@ class ProfileService {
         return axios.get<Profile>('/profile/' + userId).then(res => res.data)
     }
 
-    update(userId: number, bio: string, pfp: string | null) {
-
-        return axios.post<void>('/profile/'+ userId, {bio, pfp})
+    update(userId: number, bio: string, pfp: string | null, displayName: string) {
+        return axios.put<boolean>('/profile/'+ userId, {bio, pfp, displayName})
     }
 }
 //Date virker som en upraktisk datatype, vurder å endre
@@ -34,49 +33,32 @@ class ProfileService {
 
 class QuestionService {
   get(id: number) {
-    return axios.get<Question>('/q/' + id).then((response) => response.data);
+    return axios.get<Question>('/questions/' + id).then((response) => response.data);
   }
+
+  getQuestionsUser(userId: number) {
+    return axios.get<Question[]>('/questions/profile/'+ userId).then(response => response.data)
+  } 
 
   
 // burde returnere alle id-ene til spørsmål som passer til søk
   search(text: string) {
-    return axios.get<number[]>('/q/search/query='+text).then((response) => response.data);
+    return axios.get<number[]>('/questions/search/query='+text).then((response) => response.data);
   }
 
-  create(text: string, tag: string[]) {
-    return axios
-      .post<{ id: number }>('/q', { text: text, tag: tag })
-      .then((response) => response.data.id);
+  create(userId: number, title: string, body: string, tags: number[]) {
+    return axios.post<string>('/questions', {userId, title, body, tags}).then((response) => response.data);
   }
   
-
-  //Jeg ser for meg at disse tre gir de 4-5 nyeste/høyest rangerte spørsmålene
-  recentPreview() {
-    return axios.get<Question[]>('/q/recent/preview').then((response) => response.data);
+  getPreview(category: 'popular' | 'recent' | 'unanswered') {
+    return axios.get<Question[]>('/questions/preview/'+ category).then((response) => response.data);
   }
-  popularPreview() {
-    return axios.get<Question[]>('/q/popular/preview').then((response) => response.data);
+  getFilter(filter: string) {
+      return axios.get<Question[]>('/questions/filter/'+filter).then((response) => response.data);
   }
-  unansweredPreview() {
-    return axios.get<Question[]>('/q/unanswered/preview').then((response) => response.data);
+  getTagFilter(tag: string) {
+      return axios.get<Question[]>('/questions/filter/tag/'+tag).then((response) => response.data);
   }
-  //disse tre kan nok kombineres til én getFilter(type: string) eller noe, hvor de splittes på serversiden like før spørring sendes til db
-  getFilter(filter: string, tagId?: number) {
-      return axios.get<Question[]>('/q/filter', {params: {filter, tagId}}).then((response) => response.data);
-
-  }
-//   recent() {
-//     return axios.get<Question[]>('/q/recent').then((response) => response.data);
-//   }
-//   popular() {
-//     return axios.get<Question[]>('/q/popular').then((response) => response.data);
-//   }
-//   unanswered() {
-//     return axios.get<Question[]>('/q/unanswered').then((response) => response.data);
-//   }
-
-
-
   edit(question: Question) {
     return axios.put('/a', {question: question}).then((response) => response.data.id);
   }
@@ -87,46 +69,57 @@ class QuestionService {
 
 class AnswerService {
   get(id: number) {
-    return axios.get<Answer>('/a/'+id).then((response) => response.data);
+    return axios.get<Answer>('/answers/'+id).then((response) => response.data);
   }
   getAll(qId: number) {
-    return axios.get<Answer[]>('/q/' + qId).then((response) => response.data);
+    return axios.get<Answer[]>('/questions/' + qId).then((response) => response.data);
   }
-  edit(Answer: Answer) {
-    return axios.put('/a', {Answer: Answer}).then((response) => response.data.id);
+  create(text: string) {
+    return axios.post<number>('/answers',{text}).then(response => response.data)
+  }
+  edit(answer: Answer) {
+    return axios.put('/answers', {answer}).then((response) => response.data);
   }
   delete(id: number) {
-    return axios.delete('/a/' + id).then((response) => response.data.id);
+    return axios.delete('/answers/' + id).then((response) => response.data);
   }
 }
 
 class CommentService {
-  getAll(qId: number) {
-    return axios.get<Comment[]>('/q/' + qId).then((response) => response.data);
+  getQuestions(qId: number) {
+    return axios.get<Comment[]>('/questions/question/' + qId).then((response) => response.data);
+  }
+  getAnswer(qId: number) {
+    return axios.get<Comment[]>('/comments/answer/' + qId).then((response) => response.data);
+  }
+  create(text: string) {
+    return axios.post<number>('/comments',{text}).then(response => response.data)
   }
   edit(body: string) {
-    return axios.put('/c', {body}).then((response) => response.data.id);
+    return axios.put('/comments', {body}).then((response) => response.data);
   }
   delete(id: number) {
-    return axios.delete('/c/' + id).then((response) => response.data.id);
+    return axios.delete('/comments/' + id).then((response) => response.data);
   }
 }
 
 class TagService {
     getAll() {
-        return axios.get<Tag[]>('/tags').then((response) => response.data);
+        return axios.get<any>('/tags').then((response) => response.data as Tag[])
     }
-    getQuestion(id:number) {
+    create(tag: string) {
+      
+        return axios.post<Tag>('/tags',{tag}).then(response => response.data)
+    }
+    getQuestionTags(id:number) {
         return axios.get<Tag[]>('/tags/question/'+id).then((response) => response.data);
     }
-    post(tag: string) {
-        return axios.post('/tags',{tag}).then(response => response.data)
-    }
-    postQuestion(questionId: number, tags: number[]) {
-        return axios.post('/tags/questions/' + questionId, {tags})
+    editQuestionTags(questionId: number, addedTags: number[], removedTags: number[]){
+      return axios.post('/tags/'+ questionId, {addedTags, removedTags}).then(response => response.data)
     }
 }
 
+export const commentService = new CommentService();
 export const questionService = new QuestionService();
 export const answerService = new AnswerService();
 export const authService = new AuthService()

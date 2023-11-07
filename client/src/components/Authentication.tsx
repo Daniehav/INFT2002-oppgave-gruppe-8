@@ -43,6 +43,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
     const [duplError, setDuplError] = useState(false)
     const [profilePicture, setProfilePicture] = useState<string | null>(null)
     const [bioText, setBioText] = useState('')
+    const [displayName, setDisplayName] = useState('')
 
 
     const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +70,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
 
     const updateProfile = async () => {
         try {
-            await profileService.update(profile.user_id, bioText, profilePicture)
+            await profileService.update(profile.user_id, bioText, profilePicture, displayName)
             navigate('/')
         } catch (error) {
             console.log(error);
@@ -97,6 +98,10 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
                 <div className='row'>
                     <UploadImage show={true} uploadImage={setProfilePicture} />
                     <img className='pfp pfp-l' src={profilePicture? profilePicture : defaultPfp} alt="" />
+                </div>
+                <div className="row">
+                    <p className='fs-3 text-accent'>Display Name</p>
+                    <input value={displayName} onChange={e => setDisplayName(e.currentTarget.value)} type="text" className="input" />
                 </div>
                 <p className='fs-3 text-accent'>Bio</p>
                 <textarea className='bio' value={bioText} onChange={e => setBioText(e.currentTarget.value)} cols={30} rows={5} maxLength={150}></textarea>

@@ -169,6 +169,37 @@ class QuestionService {
             });
         });
     }
+
+
+    getFilteredQuestions(filter: string, preview: boolean): Promise<Question[]> {
+        let query: string = ''
+
+        switch (filter) {
+            case 'popular':
+                query = 'SELECT * FROM Questions ORDER BY views DESC'
+                break;
+            case 'recent':
+                query = 'SELECT * FROM Questions ORDER BY created_at DESC'
+                break;
+            case 'unanswered':
+                query = 'SELECT Questions.* FROM Questions LEFT JOIN Answers ON Questions.question_id = Answers.question_id WHERE Answers.question_id IS NULL'
+                break;
+            case 'tag':
+                query = 'SELECT Questions.* FROM Questions INNER JOIN QuestionTags ON Questions.question_id = QuestionTags.question_id INNER JOIN Tags ON QuestionTags.tag_id = Tags.tag_id WHERE Tags.name =?'
+        }
+
+        if(preview) {
+            query += ' LIMIT 8'
+        }
+        
+
+        return new Promise((resolve, reject) => {
+            pool.query(query, (err, res: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(res as Question[])
+            })
+        })
+    }
 }
 
 class ProfileService {
@@ -182,10 +213,10 @@ class ProfileService {
         })
     }
 
-    updateProfile(userId: number, bio: string, pfp: string) {
-        const args = pfp && pfp !== 'null'? [bio, pfp, userId] : [bio, userId]
+    updateProfile(userId: number, bio: string, pfp: string, displayName: string) {
+        const args = pfp && pfp !== 'null'? [bio, pfp, displayName, userId] : [bio, displayName, userId]
         return new Promise<void>((resolve, reject) => {
-            pool.query(`UPDATE UserProfiles SET bio=?${pfp && pfp !== 'null'? ', profile_picture=?' : ''} WHERE user_id=?`, args, (err) => {
+            pool.query(`UPDATE UserProfiles SET bio=?${pfp && pfp !== 'null'? ', profile_picture=?' : ''},display_name=? WHERE user_id=?`, args, (err) => {
                 console.log(err);
                 if (err) return reject(err);
                 resolve()
