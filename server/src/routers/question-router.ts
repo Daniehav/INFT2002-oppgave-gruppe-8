@@ -100,6 +100,12 @@ router.delete('/:questionId', isAuthenticated, async (req, res) => {
     }
 });
 
+router.get('/search/:query', (req, res) => {
+    const query = req.params.query;
+
+    questionService.search(query).then((questions: Question[]) => res.send(questions)).catch((err) => res.status(500).send(err))
+})
+
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {
         return next();

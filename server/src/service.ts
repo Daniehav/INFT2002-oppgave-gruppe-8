@@ -141,6 +141,16 @@ class QuestionService {
             });
         });
     }
+
+    search(query: string){
+        query = '%'+query+'%';
+        return new Promise<Question[]>((resolve, reject) => {
+            pool.query("SELECT * FROM Questions WHERE (title) LIKE (?)", [query], (err, results: RowDataPacket[]) => {
+                if (err) return reject(err);
+                resolve(results as Question[])
+            });
+        })
+    }
 }
 
 class ProfileService {

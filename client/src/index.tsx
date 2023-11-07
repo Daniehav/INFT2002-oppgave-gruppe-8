@@ -9,7 +9,9 @@ import { ThemeContext, ThemeProvider, AuthProvider, AuthContext, ProfileProvider
 import './app.css'
 import { useNavigate } from 'react-router-dom';
 import Pfp from './components/Pfp';
-import { QuestionDetails, EditQuestion, EditAnswer, FilteredQuestions} from './components/Questions'
+import { QuestionDetails, EditQuestion, EditAnswer, FilteredQuestions} from './components/Questions';
+import { SearchList } from './components/SearchResults';
+import {Searchbar} from './components/Searchbar'
 
 
 
@@ -46,6 +48,7 @@ function App() {
 					<Route path="/q/filter/:filter" element={<FilteredQuestions />} />
 					<Route path="/a/:id(\d+)/edit" element={<EditAnswer />} />
 					<Route path="/q/:id(\d+)/edit" element={<EditQuestion />} />
+					<Route path="/q/search/:query/results" element={<SearchList />} />
 				</Route>
 				<Route path="/login" element={<AuthenticationPage/>} />
 				<Route path="/profile" element={<Profile/>} />
@@ -69,6 +72,9 @@ export default function Header({showMenu, setShowMenu}: {showMenu: boolean, setS
         <header className='header bg-light-grey text-black'>
             <h1><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</h1>
             {isAuthenticated? <> <div className='nav gap-2 flex align-end'>
+				<div>
+					<Searchbar />
+				</div>
                 <div className='pointer' onClick={() => setShowMenu(true)}>
                     <Pfp size='s' pfp={profile.profile_picture} />
                 </div>

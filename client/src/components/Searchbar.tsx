@@ -1,28 +1,59 @@
-// import React from "react";
+import { useNavigate, useParams } from 'react-router-dom';
+import React, {useState, useEffect, Dispatch, SetStateAction} from 'react';
+import {questionService} from '../service'
+import { Question } from '../types';
 
-//  class SearchBar extends Component<{match: {params: {text : string}}}>{
-//     searchTerm: string = '';
-//     ids: number[] = [];
-//     render() {
-//         return <div>
-//             <input type='text' onChange={(event)=>this.searchTerm = event.currentTarget.value} ></input>
-//             <button onClick={() => {questionService.search(this.searchTerm).then((ids: number[]) => (this.ids = ids))}}>Søk</button>
-//         </div>
-//     }
-// }
+export function Searchbar() {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [suggestions, setSuggestions] : [Question[], Dispatch<SetStateAction<Question[]>>] = useState([{question_id: 0,user_id: 0,title: "",body: "",views: 0,created_at: new Date(),updated_at: new Date()}])
 
-// export class SearchResults extends Component<{match: {params: {ids: number[]}}}>{
-//     ids: number[] = this.props.match.params.ids;
-//     questions: Question[] = [];
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            const questions = await questionService.search(searchQuery);
 
-//     render() {
-//         return <div>
-//             <ul>
-//                 {this.questions.map((question) => (
-//                 <li>
-//                     <NavLink to={'/q/' + question.id}>{question.text}</NavLink>
-//                 </li>
-//             ))}
-//             </ul>
-//         </div>
-//     }
+            // map over suggestions og vis tittel popper opp i element under bar
+            setSuggestions(questions)
+        }, 2000)
+    
+        return () => clearTimeout(delayDebounceFn)
+      }, [searchQuery])
+    
+    function handleSearchText(e: any){
+	    setSearchQuery(e.target.value)
+    }
+    function handleSubmit(){
+        const navigate = useNavigate();
+
+	    navigate('/q/search/'+searchQuery+'/results');
+    }
+
+    return(
+        <div>
+            <input type='text' onChange={handleSearchText} />
+            <button onClick={handleSubmit}>search</button><br />
+            <Suggestions questions={suggestions} />
+        </div>
+    )
+}
+
+function Suggestions(questions: Question[]) {
+    
+
+    function handleClick(id: number) {
+        const navigate = useNavigate();
+
+        navigate('/q/'+id)
+    }
+
+    if(questions.length > 0){  
+        return (
+            <div>
+                {questions.map((question) => {<><div onClick={() => handleClick(question.question_id)}>{question.title}</div><br /></>})}
+            </div>
+        )
+    } else {
+        return (
+            <></>
+        )
+    }
+}

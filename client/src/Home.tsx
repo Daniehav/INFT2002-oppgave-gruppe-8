@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useContext} from 'react';
 import { questionService, tagService} from './service'
 import { Question, Tag } from './types';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 
 export default function Home() {

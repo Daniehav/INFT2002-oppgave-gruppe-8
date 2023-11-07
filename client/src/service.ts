@@ -40,7 +40,7 @@ class QuestionService {
   
 // burde returnere alle id-ene til spørsmål som passer til søk
   search(text: string) {
-    return axios.get<number[]>('/q/search/query='+text).then((response) => response.data);
+    return axios.get<Question[]>('/questions/search/'+text).then((response) => response.data);
   }
 
   create(text: string, tag: string[]) {
