@@ -14,11 +14,12 @@ export type Question = {
 
 const router = express.Router()
 
-router.post('/', isAuthenticated, async (req, res) => {
+
+router.post('/', isAuthenticated, async (req : any, res) => {
     try {
         const user = await authService.getUser(req.session.passport.user.username);
-        const question = await questionService.createQuestion(user.user_id, req.body.title, req.body.question);
-        res.status(201).json(question);
+        const questionId = await questionService.createQuestion(user.user_id, req.body.title, req.body.body, req.body.tags);
+        res.status(201).send(questionId.toString());
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
             return res.status(400).send('Invalid user ID');
@@ -27,7 +28,7 @@ router.post('/', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, async (req, res) => {
+router.get('/:questionId', isAuthenticated, async (req : any, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
         const question = await questionService.getQuestionById(questionId)
@@ -54,7 +55,7 @@ router.put('/:questionId', isAuthenticated, async (req : any, res : Response) =>
             return res.status(404).send('Question not found');
         }
 
-        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.question);
+        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
         res.status(200).json(question); 
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -76,7 +77,6 @@ router.get('/', isAuthenticated, async (req: any, res: Response) => {
 
 router.get('/profile/:userId', async (req,res) => {
     try {
-        console.log('a');
         const questionId = parseInt(req.params.userId);
         
         const questions = await questionService.getQuestionByUser(questionId)
@@ -92,7 +92,7 @@ router.get('/profile/:userId', async (req,res) => {
     }
 })
 
-router.delete('/:questionId', isAuthenticated, async (req, res) => {
+router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
 

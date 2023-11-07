@@ -54,17 +54,15 @@ router.get('/question/:questionId', isAuthenticated, async (req: any, res: Respo
 
 router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
     try {
-
         const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         const answerId = parseInt(req.params.answerId, 10);
         
         const fetchedQuestion = await answerService.getAnswerById(answerId);
-        console.log("hej")
         if (!fetchedQuestion) {
             return res.status(404).send('Answer not found');
         }
 
-        const question = await answerService.updateAnswer(answerId, userId, req.body.answer);
+        const question = await answerService.updateAnswer(answerId, userId, req.body.body);
         res.status(200).json(question); 
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -76,8 +74,8 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
 
 router.get('/', isAuthenticated, async (req: any, res: Response) => {
     try {
-        const questions = await answerService.getAllAnswers();
-        res.status(200).json(questions);
+        const answers = await answerService.getAllAnswers();
+        res.status(200).json(answers);
     } catch (error) {
         console.error('Failed to fetch questions:', error);
         res.status(500).send('Internal Server Error');

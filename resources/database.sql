@@ -33,7 +33,7 @@ CREATE TABLE Answers (
   answer_id INT AUTO_INCREMENT PRIMARY KEY,
   question_id INT,
   user_id INT,
-  answer TEXT NOT NULL,
+  body TEXT NOT NULL,
   upvotes INT DEFAULT 0,
   downvotes INT DEFAULT 0,
   accepted BOOLEAN DEFAULT FALSE,

@@ -22,7 +22,7 @@ class AuthService {
                   hashed_password: hashedPassword,
                   salt
                 };
-                profileService.createProfile(user.user_id).then(() => resolve(user)).catch(() => reject())
+                profileService.createProfile(user.user_id, username).then(() => resolve(user)).catch(() => reject())
             });
         })
     }
@@ -59,6 +59,7 @@ class QuestionService {
             const query = 'INSERT INTO Questions (user_id, title, body) VALUES (?, ?, ?)';
             pool.query(query, [userId, title, body], (err, res: ResultSetHeader) => {
                 if (err) {
+                    console.log(err)
                     return reject(err);
                 }
                 if (res.affectedRows === 0) {
@@ -207,7 +208,7 @@ class ProfileService {
 class AnswerService {
     createAnswer(userId: number, questionId: number, body: string) {
         return new Promise<number>((resolve, reject) => {
-            const query = 'INSERT INTO Answers (user_id, question_id, answer) VALUES (?, ?, ?)';
+            const query = 'INSERT INTO Answers (user_id, question_id, body) VALUES (?, ?, ?)';
             pool.query(query, [userId, questionId, body], (err, res: ResultSetHeader) => {
                 if (err) {
                     console.error("Failed to create answer", err);
@@ -233,7 +234,7 @@ class AnswerService {
                     if (!question) {
                         return reject(new Error('No answer found'));
                     }
-                    resolve(question as Question);
+                    resolve(question as Answer);
                 }
             );
         });
@@ -273,16 +274,18 @@ class AnswerService {
     updateAnswer(answerId: number, userId: number, answer: string) {
         return new Promise<void>((resolve, reject) => {
             const checkOwnershipQuery = 'SELECT * FROM Answers WHERE answer_id = ? AND user_id = ?';
+
             pool.query(checkOwnershipQuery, [answerId, userId], (err, res: RowDataPacket[]) => {
                 if (err) {
                     console.error("Failed to get answer", err);
                     return reject(err);
                 }
+
                 if (res.length === 0) {
                     return reject(new Error('No answer found with this ID for the user'));
                 }
     
-                const updateQuery = 'UPDATE Answers SET answer = ? WHERE answer_id = ? AND user_id = ?';
+                const updateQuery = 'UPDATE Answers SET body = ? WHERE answer_id = ? AND user_id = ?';
                 pool.query(updateQuery, [answer, answerId, userId], (updateErr, updateRes: ResultSetHeader) => {
                     if (updateErr) {
                         console.error("Failed to update answer", err);
@@ -312,6 +315,17 @@ class AnswerService {
                 resolve(true);
             });
         });
+    }
+
+    getAnswerCount(questionId: number): Promise<number> {
+        return new Promise((resolve, reject) => {
+            pool.query('SELECT COUNT(*) AS count FROM Answers WHERE question_id=?', [questionId], (err, res: RowDataPacket[]) =>{
+                if(err) return reject(err)
+                console.log(res[0].count);
+                
+                resolve(res[0].count)
+            } )
+        }) 
     }
 }
 
@@ -373,22 +387,9 @@ class TagService {
     }
 }
 
-class AnswerService{
-    getAnswerCount(questionId: number): Promise<number> {
-        return new Promise((resolve, reject) => {
-            pool.query('SELECT COUNT(*) AS count FROM Answers WHERE question_id=?', [questionId], (err, res: RowDataPacket[]) =>{
-                if(err) return reject(err)
-                console.log(res[0].count);
-                
-                resolve(res[0].count)
-            } )
-        }) 
-    }
-}
 export const answerService = new AnswerService()
 export const authService = new AuthService();
 export const profileService = new ProfileService();
 export const questionService = new QuestionService();
-export const answerService = new AnswerService();
 export const tagService = new TagService();
 

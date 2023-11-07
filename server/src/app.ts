@@ -39,6 +39,7 @@ app.use(passport.authenticate('session'));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/profile', profileRouter);
 app.use('/api/v1/questions', questionRouter);
+app.use('/api/v1/answers', answersRouter);
 
 export default app;
 
