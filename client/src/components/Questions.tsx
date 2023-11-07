@@ -25,8 +25,11 @@ export function QuestionDetails() {
     
 
     useEffect(() => {
-        if(!id) return
+        console.log(id);
+        
         const fetchQuestion = async () => {
+            if(isNaN(id)) return
+            
             const question = await questionService.get(id)
             setQuestion(question)
             const tags = await tagService.getQuestionTags(id)
@@ -42,7 +45,7 @@ export function QuestionDetails() {
         <div className="wide-75 card bg-white">
             <div className='question-header'>
                 <div className="row">
-                    <Profile userId={question.user_id} withPfp={true} />
+                    <UsernamePfp userId={question.user_id} withPfp={true} />
                 </div>
                 <p className='fs-1'>{question.title}</p>
                 <div className='row'>
@@ -69,7 +72,7 @@ export function Answers({question}: {question: Question}){
     const [sortBy, setSortBy] = useState<'score' | 'latest'>('score')
 
     useEffect(() => {
-        if(!question) return
+        if(!question.question_id) return
         const fetch = async() => {
             const answers = await answerService.getAll(question.question_id)
             console.log(answers);
@@ -77,7 +80,7 @@ export function Answers({question}: {question: Question}){
             setAnswers(answers)
         }
         fetch()
-    }, []);
+    }, [question]);
 
     useEffect(() => {
         setAnswers(prev => {
@@ -93,21 +96,21 @@ export function Answers({question}: {question: Question}){
 
     
 
-    const answersElements = answers.map((answer) => {
+    const answersElements = answers.map((answer, i) => {
         const postedQuestion = question.user_id == profile.user_id
         const postedAnswer = answer.user_id == profile.user_id
         return (
-            <div className='card bg-white wide-75'>
+            <div key={i} className='card bg-white wide-100'>
                 {postedQuestion && <img src={accept} alt=""/>}
                 {answer.accepted && <img src={accepted} alt="" />}
                 <div className='row'>
-                    <Profile userId={answer.user_id} withPfp={true} />
+                    <UsernamePfp userId={answer.user_id} withPfp={true} />
                 </div>
                 <div className="row">
-                    <div>
-                        <img src={upvote} alt="" />
-                        <p className='fs-3'>{answer.upvotes - answer.downvotes}</p>
-                        <img src={downvote} alt="" />
+                    <div className='flex-vert align-center gap-05'>
+                        <img className='vote-icon pointer' src={upvote} alt="" />
+                        <p className='fs-3 vote-count'>{answer.upvotes - answer.downvotes}</p>
+                        <img className='vote-icon pointer' src={downvote} alt="" />
                     </div>
                     <p className='text-body'>{answer.body}</p>
                 </div>
@@ -124,21 +127,25 @@ export function Answers({question}: {question: Question}){
     })
     
     return(
-        <div>
-            {answers.length > 0 && <div className='row'>
-                <p>{answers.length} answers</p>
-                <button className='text-black' onClick={() => setSortBy('latest')}>Sort by latest</button>
-                <img className='icon-s pointer' onClick={() => setDescending(prev => !prev)} src={descending? sortDown : sortUp} alt="" />
-                <button className='text-black' onClick={() => setSortBy('score')}>Sort by score</button>
-            </div>}
-            {answers.length > 0? {answersElements} : <div className='wide-75 card bg-white fs-3 row'>
+        <>
+            {answers.length > 0? 
+                <div className='wide-75'>
+                    <div className='row'>
+                    <p>{answers.length} answers</p>
+                    <button className='text-black' onClick={() => setSortBy('latest')}>Sort by latest</button>
+                    <img className='icon-s pointer' onClick={() => setDescending(prev => !prev)} src={descending? sortDown : sortUp} alt="" />
+                    <button className='text-black' onClick={() => setSortBy('score')}>Sort by score</button>
+                </div>
+                {answersElements}
+            </div> : 
+            <div className='wide-75 card bg-white fs-3 row'>
                 <p>No answers yet</p>
                 {profile.user_id != question.user_id && <>
                     <Link to={`/question/${question.question_id}/answer/create`} className="button bg-light-grey text-black">Post answer</Link>
                     <Link to={`/question/${question.question_id}/comment/create`} className="button bg-light-grey text-black">Post comment</Link>
                 </>}
             </div>}
-        </div>
+        </>
     )
 } 
 
@@ -163,7 +170,7 @@ function Comments({parent}: {parent: Question | Answer}){
         return (
             <div className='row'>
                 <p className='text-body'>{c.body}</p> 
-                <Profile userId={c.user_id} withPfp={false} />
+                <UsernamePfp userId={c.user_id} withPfp={false} />
                 <p>{c.updated_at}</p>
             </div>
         )
@@ -176,7 +183,7 @@ function Comments({parent}: {parent: Question | Answer}){
     )
 }
 
-function Profile({userId, withPfp}: {userId: number, withPfp: boolean}){
+function UsernamePfp ({userId, withPfp}: {userId: number, withPfp: boolean}){
 
     const [profile, setProfile] = useState<Profile>({} as Profile)
     

@@ -14,7 +14,7 @@ class AuthService {
         return axios.post<void>('/auth/logout')
     }
     checkAuth() {
-        return axios.get('/auth/authenticated').then(res => res.data)
+        return axios.get<number>('/auth/authenticated').then(res => res.data)
     }
 }
 
@@ -33,6 +33,8 @@ class ProfileService {
 
 class QuestionService {
   get(id: number) {
+    console.log(id);
+    
     return axios.get<Question>('/questions/' + id).then((response) => response.data);
   }
 
@@ -72,7 +74,7 @@ class AnswerService {
     return axios.get<Answer>('/answers/'+id).then((response) => response.data);
   }
   getAll(qId: number) {
-    return axios.get<Answer[]>('/questions/' + qId).then((response) => response.data);
+    return axios.get<Answer[]>('/answers/question/' + qId).then((response) => response.data);
   }
   create(text: string) {
     return axios.post<number>('/answers',{text}).then(response => response.data)
@@ -87,7 +89,7 @@ class AnswerService {
 
 class CommentService {
   getQuestions(qId: number) {
-    return axios.get<Comment[]>('/questions/question/' + qId).then((response) => response.data);
+    return axios.get<Comment[]>('/comments/question/' + qId).then((response) => response.data);
   }
   getAnswer(qId: number) {
     return axios.get<Comment[]>('/comments/answer/' + qId).then((response) => response.data);

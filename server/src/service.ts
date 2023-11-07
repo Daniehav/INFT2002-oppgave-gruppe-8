@@ -10,11 +10,7 @@ class AuthService {
     createUser(username: string, email: string, hashedPassword: Buffer, salt: Buffer) {
         return new Promise<User>((resolve, reject) => {
             pool.query('INSERT INTO Users (username, email, hashed_password, salt) VALUES (?, ?, ?, ?)', [ username, email, hashedPassword, salt], (err, result: ResultSetHeader) => {
-                console.log(err);
-                
                 if (err) return reject(err);
-                console.log(result.insertId);
-                
                 const user: User = {
                   user_id: result.insertId,
                   email,
@@ -59,7 +55,6 @@ class QuestionService {
             const query = 'INSERT INTO Questions (user_id, title, body) VALUES (?, ?, ?)';
             pool.query(query, [userId, title, body], (err, res: ResultSetHeader) => {
                 if (err) {
-                    console.log(err)
                     return reject(err);
                 }
                 if (res.affectedRows === 0) {
@@ -138,7 +133,6 @@ class QuestionService {
         return new Promise((resolve, reject) => {
             pool.query(
                 'SELECT * FROM Questions WHERE user_id = ?', [userId], async (err, res: RowDataPacket[]) => {
-                    console.log(err);
                     if (err) {
                         return reject(err);
                     }
@@ -218,7 +212,6 @@ class ProfileService {
         const args = pfp && pfp !== 'null'? [bio, pfp, displayName, userId] : [bio, displayName, userId]
         return new Promise<void>((resolve, reject) => {
             pool.query(`UPDATE UserProfiles SET bio=?${pfp && pfp !== 'null'? ', profile_picture=?' : ''},display_name=? WHERE user_id=?`, args, (err) => {
-                console.log(err);
                 if (err) return reject(err);
                 resolve()
             });
@@ -272,6 +265,8 @@ class AnswerService {
     }
 
     getAllAnswersByQuestion(questionId: number): Promise<Answer[]> {
+        console.log(questionId);
+        
         return new Promise((resolve, reject) => {
             pool.query('SELECT * FROM Answers WHERE question_id = ?', [questionId], (err, results: RowDataPacket[]) => {
                 if (err) {
@@ -279,24 +274,6 @@ class AnswerService {
                     return reject(err);
                 }
 
-                if (Array.isArray(results) && results.length > 0 && Array.isArray(results[0])) {
-                    return reject(new Error('Unexpected result format'));
-                }
-                resolve(results as Answer[]);
-            });
-        });
-    }
-
-    getAllAnswers(): Promise<Answer[]> {
-        return new Promise((resolve, reject) => {
-            pool.query('SELECT * FROM Answers', (err, results: RowDataPacket[]) => {
-                if (err) {
-                    return reject(err);
-                }
-
-                if (Array.isArray(results) && results.length > 0 && Array.isArray(results[0])) {
-                    return reject(new Error('Unexpected result format'));
-                }
                 resolve(results as Answer[]);
             });
         });
@@ -352,8 +329,6 @@ class AnswerService {
         return new Promise((resolve, reject) => {
             pool.query('SELECT COUNT(*) AS count FROM Answers WHERE question_id=?', [questionId], (err, res: RowDataPacket[]) =>{
                 if(err) return reject(err)
-                console.log(res[0].count);
-                
                 resolve(res[0].count)
             } )
         }) 
@@ -381,8 +356,6 @@ class TagService {
     }
 
     create(text: string) {
-        console.log(text);
-        
         return new Promise<Tag>((resolve, reject) => {
             pool.query('INSERT INTO Tags (name) VALUES (?)',[text],async  (err, result: ResultSetHeader) => {
                 if(err) return reject(err)

@@ -39,7 +39,7 @@ router.get('/:questionId', isAuthenticated, async (req : any, res) => {
         }
         
     } catch (error) {
-        console.error('Failed to fetch question:', error);
+        // console.error('Failed to fetch question:', error);
         res.status(500).send('Internal Server Error');
     }
 });

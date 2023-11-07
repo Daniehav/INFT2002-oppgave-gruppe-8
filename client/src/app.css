@@ -107,7 +107,7 @@ body, body *{
 .gap-1{
     gap: 1em;
 }
-.gap-0{
+.gap-05{
     gap:0.5em;
 }
 
@@ -271,6 +271,14 @@ input{
 
 .answer{
     width: 75%;
+}
+
+.vote-count{
+    margin:0;
+}
+
+.vote-icon{
+    width: 1.5rem;
 }
 
 .relative{

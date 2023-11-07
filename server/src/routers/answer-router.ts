@@ -72,15 +72,6 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
     }
 });
 
-router.get('/', isAuthenticated, async (req: any, res: Response) => {
-    try {
-        const answers = await answerService.getAllAnswers();
-        res.status(200).json(answers);
-    } catch (error) {
-        console.error('Failed to fetch questions:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
     try {
