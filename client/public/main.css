@@ -5,12 +5,6 @@
 /*!*******************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./src/app.css (1) ***!
   \*******************************************************************/
-body{
-    margin: 0;
-    min-height: 100vh;
-    overflow-x: hidden;
-    background-color: var(--light-grey);
-}
 :root{
     --light-grey: #ededed;
     --black: #262730;
@@ -35,11 +29,21 @@ body{
     --grey: #3c3c3c;
 }
 
+body{
+    margin: 0;
+    overflow-x: hidden;
+    background-color: var(--light-grey);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
 .app{
+    min-height: 100vh;
     font-family: 'Familjen Grotesk';
 }
 
-.app, .app *{
+body, body *{
     transition: color 300ms ease-out, background-color 300ms ease-in ;
 }
 
@@ -63,7 +67,7 @@ body{
 .container{
     position: relative;
     top: 10vh;
-    min-height: 90vh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -138,7 +142,7 @@ body{
     display: flex;
     justify-content: space-around;
     border-bottom: solid 2px var(--grey);
-    z-index: 3;
+    z-index: 4;
 }
 
 .subheader{
@@ -382,7 +386,6 @@ textarea{
     transform-origin:top;
     transform: scaleY(1);
     transition: transform 100ms;
-    z-index: 1;
 }
 
 .user-menu--hide{
