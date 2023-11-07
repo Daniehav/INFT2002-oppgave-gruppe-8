@@ -30,7 +30,7 @@ function isAuthenticated(req: any, res: Response, next: NextFunction) {
     const user = req.user as User
     const id = parseInt(req.params.id)
     
-    if (req.isAuthenticated() && user.id == id) {
+    if (req.isAuthenticated() && user.user_id == id) {
         return next();
     }
 }
