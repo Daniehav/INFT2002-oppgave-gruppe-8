@@ -80,7 +80,7 @@ CREATE TABLE Favorites (
 );
 
 CREATE TABLE UserVotes (
-  vote_id INT AUTO_INCREMENT PRIMARY KEY
+  vote_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   answer_id INT,
   vote_type ENUM('upvote', 'downvote'),
