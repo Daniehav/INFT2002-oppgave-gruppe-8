@@ -13,7 +13,7 @@ export type Profile = {
 
 const router = express.Router()
 
-router.post('/:id', isAuthenticated, (req: any, res) => {
+router.put('/:id', isAuthenticated, (req: any, res) => {
     const id = parseInt(req.params.id)
     profileService.updateProfile(id, req.body.bio, req.body.pfp)
 }) 

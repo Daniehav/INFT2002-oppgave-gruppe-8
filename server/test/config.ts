@@ -1,4 +1,4 @@
 process.env.MYSQL_HOST = 'mysql.stud.ntnu.no';
-// process.env.MYSQL_USER = 
-// process.env.MYSQL_PASSWORD = 
-// process.env.MYSQL_DATABASE = 
+process.env.MYSQL_USER = 'daniehav_qa';
+process.env.MYSQL_PASSWORD = 'qa';
+process.env.MYSQL_DATABASE = 'daniehav_qa_test';
