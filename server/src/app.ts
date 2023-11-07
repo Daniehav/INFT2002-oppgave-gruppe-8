@@ -2,6 +2,7 @@ import express from 'express';
 import authRouter from './routers/auth-router'
 import profileRouter from './routers/profile-router'
 import questionRouter from './routers/question-router'
+import answersRouter from './routers/answer-router'
 import tagRouter from './routers/tag-router'
 import passport from 'passport'
 import session from 'express-session'
@@ -38,7 +39,7 @@ app.use(passport.authenticate('session'));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/profile', profileRouter);
 app.use('/api/v1/questions', questionRouter);
-app.use('/api/v1/tags', tagRouter);
+app.use('/api/v1/answers', answersRouter);
 
 export default app;
 

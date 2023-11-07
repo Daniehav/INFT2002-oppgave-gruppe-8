@@ -14,9 +14,11 @@ export type Question = {
 
 const router = express.Router()
 
-router.post('/', isAuthenticated, async (req, res) => {
+
+router.post('/', isAuthenticated, async (req : any, res) => {
     try {
-        const questionId = await questionService.createQuestion(req.body.userId, req.body.title, req.body.body, req.body.tags);
+        const user = await authService.getUser(req.session.passport.user.username);
+        const questionId = await questionService.createQuestion(user.user_id, req.body.title, req.body.body, req.body.tags);
         res.status(201).send(questionId.toString());
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -26,7 +28,7 @@ router.post('/', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, async (req, res) => {
+router.get('/:questionId', isAuthenticated, async (req : any, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
         const question = await questionService.getQuestionById(questionId)
@@ -42,14 +44,10 @@ router.get('/:questionId', isAuthenticated, async (req, res) => {
     }
 });
 
-router.put('/:questionId', isAuthenticated, async (req, res) => {
+router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
     try {
-        const userId = parseInt(req.body.user_id, 10);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         const questionId = parseInt(req.params.questionId, 10);
-
-        if (isNaN(userId)) {
-            return res.status(400).send('Invalid user ID');
-        }
         
         const fetchedQuestion = await questionService.getQuestionById(questionId);
 
@@ -57,7 +55,7 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
             return res.status(404).send('Question not found');
         }
 
-        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.question);
+        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
         res.status(200).json(question); 
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -67,20 +65,18 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/', isAuthenticated, (req, res) => {
-    questionService.getAllQuestions()
-        .then(questions => {
-            res.status(200).json(questions);
-        })
-        .catch(error => {
-            console.error('Failed to fetch questions:', error);
-            res.status(500).send('Internal Server Error');
-        });
+router.get('/', isAuthenticated, async (req: any, res: Response) => {
+    try {
+        const questions = await questionService.getAllQuestions();
+        res.status(200).json(questions);
+    } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 router.get('/profile/:userId', async (req,res) => {
     try {
-        console.log('a');
         const questionId = parseInt(req.params.userId);
         
         const questions = await questionService.getQuestionByUser(questionId)
@@ -96,7 +92,7 @@ router.get('/profile/:userId', async (req,res) => {
     }
 })
 
-router.delete('/:questionId', isAuthenticated, async (req, res) => {
+router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
 
@@ -104,7 +100,8 @@ router.delete('/:questionId', isAuthenticated, async (req, res) => {
             return res.status(400).send('Invalid question ID');
         }
         const question = await questionService.getQuestionById(questionId); // check if question exist
-        await questionService.deleteQuestion(question.question_id, 1);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
+        await questionService.deleteQuestion(question.question_id, userId);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No question found') {
