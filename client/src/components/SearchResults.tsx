@@ -14,13 +14,19 @@ function CompactQuestion(question: Question) {
     )
 }
 
+
 export function SearchList() {
     
     const params = useParams();
-
+    let questions: Question[] = []
     const query: string = params.query!;
+    
+    useEffect(() => {
+        async function fetchQuestions() {questions = await questionService.search(query);}
+        fetchQuestions();
+    }, [query]);
 
-    const questions = questionService.search(query)
+    
     return (
         <div>
             <ul>
