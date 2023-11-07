@@ -95,7 +95,7 @@ router.get('/profile/:userId', async (req,res) => {
 router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
-
+        
         if (isNaN(questionId)) {
             return res.status(400).send('Invalid question ID');
         }
@@ -112,6 +112,40 @@ router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
         }
     }
 });
+
+router.get('/preview/:filter', async(req, res) => {
+    try {
+        const {filter} = req.params
+        const questions = await questionService.getFilteredQuestions(filter, true)
+        res.status(200).json(questions)
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+router.get('/filter/:filter', async (req, res) => {
+    try {
+        const {filter} = req.params
+        const questions = await questionService.getFilteredQuestions(filter, false);
+        res.status(200).json(questions)
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+router.get('/filter/tag/:tag', async (req, res) => {
+    try {
+        const {tag} = req.params
+        const questions = await questionService.getFilteredQuestions(tag, false);
+        res.status(200).json(questions)
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {

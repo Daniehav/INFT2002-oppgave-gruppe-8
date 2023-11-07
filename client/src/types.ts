@@ -1,4 +1,5 @@
 export type Profile = {
+    display_name: string,
     id:  number,
     user_id: number,
     profile_picture: string,
@@ -15,6 +16,7 @@ export type Question = {
     views: number;
     created_at: Date;
     updated_at: Date;
+    answer_count?: number;
 };
 
 export type Answer = {
@@ -27,7 +29,6 @@ export type Answer = {
     accepted: boolean;
     created_at: Date;
     updated_at: Date;
-  
 }
 
 export type Comment = {
@@ -38,9 +39,13 @@ export type Comment = {
   body: string;
   created_at: Date;
   updated_at: Date;
+  username?: string;
 };
 
 export type Tag = {
     tag_id: number;
-    tag: string;
+    name: string;
+    count: number;
+    created_at: Date;
+    updated_at: Date;
 }
