@@ -2,15 +2,19 @@ import express, {Response, NextFunction} from 'express'
 import { questionService, authService } from '../service'
 
 export type Question = {
-    question_id:  number,
-    userId: number,
-    title: string,
-    body: string,
-}
+    question_id: number;
+    user_id: number;
+    title: string;
+    body: string;
+    views: number;
+    created_at: Date;
+    updated_at: Date;
+    answer_count?: number;
+};
 
 const router = express.Router()
 
-router.post('/create', isAuthenticated, async (req : any, res) => {
+router.post('/', isAuthenticated, async (req, res) => {
     try {
         const user = await authService.getUser(req.session.passport.user.username);
         const question = await questionService.createQuestion(user.user_id, req.body.title, req.body.question);
@@ -23,15 +27,16 @@ router.post('/create', isAuthenticated, async (req : any, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, async (req: any, res: Response) => {
+router.get('/:questionId', isAuthenticated, async (req, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
-        const question = await questionService.getQuestionById(questionId);
+        const question = await questionService.getQuestionById(questionId)
         if (question) {
             res.status(200).json(question);
         } else {
             res.status(404).send('Question not found');
         }
+        
     } catch (error) {
         console.error('Failed to fetch question:', error);
         res.status(500).send('Internal Server Error');
@@ -69,7 +74,25 @@ router.get('/', isAuthenticated, async (req: any, res: Response) => {
     }
 });
 
-router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
+router.get('/profile/:userId', async (req,res) => {
+    try {
+        console.log('a');
+        const questionId = parseInt(req.params.userId);
+        
+        const questions = await questionService.getQuestionByUser(questionId)
+        if (questions) {
+            res.status(200).json(questions);
+        } else {
+            res.status(404).send('Question not found');
+        }
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+router.delete('/:questionId', isAuthenticated, async (req, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
 

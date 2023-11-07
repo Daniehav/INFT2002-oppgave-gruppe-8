@@ -36,7 +36,7 @@ function App() {
     }, []);
 
 	return(
-		<div className={`app text-black ${isDark && 'dark-mode'}`}>
+		<div className={`app bg-light-grey text-black ${isDark? 'dark-mode' : ''}`}>
 			<Header showMenu={showMenu} setShowMenu={setShowMenu}/>
 			{showMenu && <div onClick={() => setShowMenu(false)} className='hide-onclick'></div>}
 			<Routes>
@@ -62,13 +62,14 @@ export default function Header({showMenu, setShowMenu}: {showMenu: boolean, setS
     const {isDark,toggleTheme} = useContext(ThemeContext)
     const {isAuthenticated, logOut} = useContext(AuthContext)
     const navigate = useNavigate()
-	const menuRef = useRef(null)
 
 
     return(
         <header className='header bg-light-grey text-black'>
             <h1><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</h1>
-            {isAuthenticated? <> <div className='nav gap-2 flex align-end'>
+            {isAuthenticated? <>
+			//sett søkebar
+			 <div className='nav gap-2 flex align-end'>
                 <div className='pointer' onClick={() => setShowMenu(true)}>
                     <Pfp size='s' pfp={profile.profile_picture} />
                 </div>

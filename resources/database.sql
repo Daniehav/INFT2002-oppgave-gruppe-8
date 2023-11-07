@@ -14,6 +14,7 @@ CREATE TABLE UserProfiles (
   bio TEXT,
   profile_picture VARCHAR(255),
   link VARCHAR(255),
+  display_name VARCHAR(20),
   FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
@@ -79,7 +80,7 @@ CREATE TABLE Favorites (
 );
 
 CREATE TABLE UserVotes (
-  vote_id INT AUTO_INCREMENT PRIMARY KEY
+  vote_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   answer_id INT,
   vote_type ENUM('upvote', 'downvote'),

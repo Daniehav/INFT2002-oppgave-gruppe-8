@@ -4,6 +4,7 @@ import { User } from './routers/auth-router';
 import { Question } from './routers/question-router';
 import { Profile } from './routers/profile-router';
 import { Answer } from './routers/answer-router';
+import { Tag } from './routers/tag-router'
 
 class AuthService {
     createUser(username: string, email: string, hashedPassword: Buffer, salt: Buffer) {
@@ -53,7 +54,7 @@ class AuthService {
 
 
 class QuestionService {
-    createQuestion(userId: number, title: string, body: string) {
+    createQuestion(userId: number, title: string, body: string, tags: number[]) {
         return new Promise<number>((resolve, reject) => {
             const query = 'INSERT INTO Questions (user_id, title, body) VALUES (?, ?, ?)';
             pool.query(query, [userId, title, body], (err, res: ResultSetHeader) => {
@@ -63,6 +64,10 @@ class QuestionService {
                 if (res.affectedRows === 0) {
                     return reject(new Error('Question could not be added'));
                 }
+                if(tags.length != 0){
+                    tags.forEach(t => {
+                    tagService.createQuestionTags(res.insertId,t) 
+                })}
                 resolve(res.insertId);
             });
         });
@@ -113,19 +118,42 @@ class QuestionService {
     getQuestionById(questionId: number): Promise<Question> {
         return new Promise((resolve, reject) => {
             pool.query(
-                'SELECT * FROM Questions WHERE question_id = ? LIMIT 1', [questionId], (err, results) => {
+                'SELECT * FROM Questions WHERE question_id = ?', [questionId], (err, results: RowDataPacket[]) => {
                     if (err) {
                         return reject(err);
                     }
-                    const question = Array.isArray(results) ? results[0] : results;
+                    const question = results[0] as Question
                     if (!question) {
                         return reject(new Error('No question found'));
                     }
+                    question.views += 1
+                    pool.query('UPDATE Questions SET views = views + 1 WHERE question_id=?',[questionId])
                     resolve(question as Question);
                 }
             );
         });
     }
+    getQuestionByUser(userId: number): Promise<Question[]> {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                'SELECT * FROM Questions WHERE user_id = ?', [userId], async (err, res: RowDataPacket[]) => {
+                    console.log(err);
+                    if (err) {
+                        return reject(err);
+                    }
+                    const questions = res as Question[]
+                    const newQuestions = await Promise.all(questions.map(async (q: Question) => {
+                        const answer_count = await answerService.getAnswerCount(q.question_id)
+                        return {...q, answer_count} as Question
+                    }))
+                    
+                    resolve(newQuestions);
+                }
+            );
+        });
+    }
+
+   
 
     getAllQuestions(): Promise<Question[]> {
         return new Promise((resolve, reject) => {
@@ -145,9 +173,9 @@ class QuestionService {
 
 class ProfileService {
 
-    createProfile(userId: number) {
+    createProfile(userId: number, username: string) {
         return new Promise<void>((resolve, reject) => {
-            pool.query('INSERT INTO UserProfiles (user_id) VALUES (?)', [userId], (err) => {
+            pool.query('INSERT INTO UserProfiles (user_id, display_name) VALUES (?, ?)', [userId, username], (err) => {
                 if (err) return reject(err);
                 resolve()
             });
@@ -286,8 +314,81 @@ class AnswerService {
         });
     }
 }
+
+class TagService {
+    getAll(){
+        return new Promise<Tag[]>((resolve, reject) => {
+            const query = 'SELECT Tags.*, COUNT(QuestionTags.tag_id) AS count FROM Tags LEFT JOIN QuestionTags ON Tags.tag_id = QuestionTags.tag_id GROUP BY Tags.tag_id'
+            pool.query(query,(err, result: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(result as Tag[])
+            })
+        })
+    }
+    
+    get(id: number) {
+        return new Promise<Tag>((resolve, reject) => {
+            pool.query('SELECT * FROM Tags WHERE tag_id=?',[id],(err, result: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(result[0] as Tag)
+            })
+        })
+    }
+
+    create(text: string) {
+        console.log(text);
+        
+        return new Promise<Tag>((resolve, reject) => {
+            pool.query('INSERT INTO Tags (name) VALUES (?)',[text],async  (err, result: ResultSetHeader) => {
+                if(err) return reject(err)
+                const newTag = await this.get(result.insertId)
+                resolve(newTag)
+            })
+        })
+    }
+    getQuestionTags(questionId: number) {
+        return new Promise<Tag[]>((resolve, reject) => {
+            pool.query('SELECT * FROM Tags INNER JOIN QuestionTags ON Tags.tag_id = QuestionTags.tag_id WHERE QuestionTags.question_id=?', [questionId], (err, result: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(result as Tag[])
+            })
+        })
+    }
+    createQuestionTags(questionId: number, tagId: number) {
+        return new Promise<number>((resolve, reject) => {
+            pool.query('INSERT INTO QuestionTags (question_id, tag_id) VALUES (?, ?)', [questionId, tagId], (err, res: ResultSetHeader) => {
+                if (err) return reject(err);
+                resolve(res.insertId)
+            })
+        })
+    }
+
+    deleteQuestionTags(questionId: number, tagId: number) {
+        return new Promise<void>((resolve, reject) => {
+            pool.query('DELETE FROM QuestionsTags WHERE question_id = ? AND tag_id = ?', [questionId, tagId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve()
+            })
+        })
+    }
+}
+
+class AnswerService{
+    getAnswerCount(questionId: number): Promise<number> {
+        return new Promise((resolve, reject) => {
+            pool.query('SELECT COUNT(*) AS count FROM Answers WHERE question_id=?', [questionId], (err, res: RowDataPacket[]) =>{
+                if(err) return reject(err)
+                console.log(res[0].count);
+                
+                resolve(res[0].count)
+            } )
+        }) 
+    }
+}
+export const answerService = new AnswerService()
 export const authService = new AuthService();
 export const profileService = new ProfileService();
 export const questionService = new QuestionService();
 export const answerService = new AnswerService();
+export const tagService = new TagService();
 

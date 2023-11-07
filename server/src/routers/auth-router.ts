@@ -64,7 +64,6 @@ router.post('/signin', passport.authenticate('local', {
 
 router.get('/authenticated', isAuthenticated ,(req, res) => {
     const user = req.user as User
-	console.log(user);
     if(!user) return res.sendStatus(404)
     res.send(user.user_id.toString())
 })
