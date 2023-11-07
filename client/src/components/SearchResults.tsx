@@ -16,7 +16,6 @@ function CompactQuestion(question: Question) {
 
 
 export function SearchList() {
-    
     const params = useParams();
     let questions: Question[] = []
     const query: string = params.query!;
