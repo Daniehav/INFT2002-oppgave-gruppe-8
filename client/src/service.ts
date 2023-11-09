@@ -27,8 +27,6 @@ class ProfileService {
         return axios.put<boolean>('/profile/'+ userId, {bio, pfp, displayName})
     }
 }
-//Date virker som en upraktisk datatype, vurder å endre
-//trenger man Question.Answered eller kan dette infereres i tilfeller hvor det finnes et svar med Answer.accepted = True?
 
 
 class QuestionService {
@@ -43,7 +41,6 @@ class QuestionService {
   } 
 
   
-// burde returnere alle id-ene til spørsmål som passer til søk
   search(text: string) {
     return axios.get<number[]>('/questions/search/query='+text).then((response) => response.data);
   }
