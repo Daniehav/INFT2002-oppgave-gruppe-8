@@ -28,8 +28,6 @@ class ProfileService {
         return axios.post<void>('/profile/'+ userId, {bio, pfp})
     }
 }
-//Date virker som en upraktisk datatype, vurder å endre
-//trenger man Question.Answered eller kan dette infereres i tilfeller hvor det finnes et svar med Answer.accepted = True?
 
 
 class QuestionService {
@@ -38,7 +36,6 @@ class QuestionService {
   }
 
   
-// burde returnere alle id-ene til spørsmål som passer til søk
   search(text: string) {
     return axios.get<Question[]>('/questions/search/'+text).then((response) => response.data);
   }
@@ -50,7 +47,6 @@ class QuestionService {
   }
   
 
-  //Jeg ser for meg at disse tre gir de 4-5 nyeste/høyest rangerte spørsmålene
   recentPreview() {
     return axios.get<Question[]>('/q/recent/preview').then((response) => response.data);
   }
@@ -60,23 +56,10 @@ class QuestionService {
   unansweredPreview() {
     return axios.get<Question[]>('/q/unanswered/preview').then((response) => response.data);
   }
-  //disse tre kan nok kombineres til én getFilter(type: string) eller noe, hvor de splittes på serversiden like før spørring sendes til db
   getFilter(filter: string, tagId?: number) {
       return axios.get<Question[]>('/q/filter', {params: {filter, tagId}}).then((response) => response.data);
 
   }
-//   recent() {
-//     return axios.get<Question[]>('/q/recent').then((response) => response.data);
-//   }
-//   popular() {
-//     return axios.get<Question[]>('/q/popular').then((response) => response.data);
-//   }
-//   unanswered() {
-//     return axios.get<Question[]>('/q/unanswered').then((response) => response.data);
-//   }
-
-
-
   edit(question: Question) {
     return axios.put('/a', {question: question}).then((response) => response.data.id);
   }

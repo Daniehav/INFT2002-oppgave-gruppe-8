@@ -29,7 +29,7 @@ export function Searchbar() {
         <div>
             <input type='text' onChange={handleSearchText} />
             <button onClick={handleSubmit}>search</button><br />
-            <Suggestions questions={suggestions} />
+            <Suggestions {... suggestions} />
         </div>
     )
 }
