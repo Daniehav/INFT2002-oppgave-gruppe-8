@@ -3,7 +3,7 @@ import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { User } from './routers/auth-router';
 import { Question } from './routers/question-router';
 import { Profile } from './routers/profile-router';
-import { Answer } from './routers/answer-router';
+import { Answer, Vote, Favorite } from './routers/answer-router';
 import { Tag } from './routers/tag-router'
 
 class AuthService {
@@ -195,6 +195,15 @@ class QuestionService {
             })
         })
     }
+
+    acceptAnswer(answerId: number) {
+        return new Promise<void>((resolve, reject) => {
+            pool.query('UPDATE Answers SET accepted= NOT accepted WHERE answer_id=?',[answerId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve()
+            })
+        })
+    }
 }
 
 class ProfileService {
@@ -219,6 +228,8 @@ class ProfileService {
     }
     
     getProfile(userId: number) {
+        console.log('asdasd',userId);
+        
         return new Promise<Profile>((resolve, reject) => {
             pool.query('SELECT * FROM UserProfiles WHERE user_id=?', [userId], (err, result: RowDataPacket[]) => {
                 if (err) return reject(err);
@@ -231,6 +242,8 @@ class ProfileService {
 
 class AnswerService {
     createAnswer(userId: number, questionId: number, body: string) {
+        console.log(body);
+        
         return new Promise<number>((resolve, reject) => {
             const query = 'INSERT INTO Answers (user_id, question_id, body) VALUES (?, ?, ?)';
             pool.query(query, [userId, questionId, body], (err, res: ResultSetHeader) => {
@@ -268,11 +281,14 @@ class AnswerService {
         console.log(questionId);
         
         return new Promise((resolve, reject) => {
-            pool.query('SELECT * FROM Answers WHERE question_id = ?', [questionId], (err, results: RowDataPacket[]) => {
+            pool.query('SELECT Answers.*, COUNT(CASE WHEN uv.vote_type = "upvote" THEN 1 END) AS upvotes, COUNT(CASE WHEN uv.vote_type = "downvote" THEN 1 END) AS downvotes FROM Answers LEFT JOIN UserVotes uv ON Answers.answer_id = uv.answer_id WHERE Answers.question_id = ? GROUP BY Answers.answer_id;', [questionId], (err, results: RowDataPacket[]) => {
                 if (err) {
                     console.error("Failed to get answers", err);
                     return reject(err);
                 }
+
+                console.log(results);
+                
 
                 resolve(results as Answer[]);
             });
@@ -333,6 +349,64 @@ class AnswerService {
             } )
         }) 
     }
+    getVote(answerId: number, userId: number): Promise<Vote> {
+        return new Promise((resolve, reject) => {
+            pool.query('SELECT * FROM UserVotes WHERE user_id=? AND answer_id=?',[userId, answerId], (err, res: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(res[0] as Vote)
+            })
+        })
+    }
+    setVote(answerId: number, userId: number, vote: 'upvote' | 'downvote'): Promise<number> {
+        return new Promise((resolve, reject) => {
+            pool.query('INSERT INTO UserVotes (vote_type, answer_id, user_id) VALUES (?, ?, ?)',[vote, answerId, userId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve(res.insertId)
+            })
+        })
+    }
+    updateVote(answerId: number, userId: number, vote: 'upvote' | 'downvote'): Promise<void> {
+        return new Promise((resolve, reject) => {
+            pool.query('UPDATE UserVotes (vote) VALUES (?) WHERE answer_id=? AND user_id=?',[vote, answerId, userId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve()
+        })
+    })
+}
+    deleteVote(answerId: number, userId: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            pool.query('DELETE FROM UserVotes WHERE answer_id=? AND user_id=?',[answerId, userId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve()
+        })
+    })
+}
+    getFavorite(answerId: number, userId: number): Promise<Favorite> {
+        return new Promise((resolve, reject) => {
+            pool.query('SELECT * FROM Favorites WHERE user_id=? AND answer_id=?',[userId, answerId], (err, res: RowDataPacket[]) => {
+                if(err) return reject(err)
+                resolve(res[0] as Favorite)
+            })
+        })
+    }
+    setFavorite(answerId: number, userId: number): Promise<number> {
+        return new Promise((resolve, reject) => {
+            pool.query('INSERT INTO Favorites (answer_id, user_id) VALUES (?, ?)',[answerId, userId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve(res.insertId)
+            })
+        })
+    }
+
+    deleteFavorite(answerId: number, userId: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            pool.query('DELETE FROM Favorites WHERE answer_id=? AND user_id=?',[answerId, userId], (err, res: ResultSetHeader) => {
+                if(err) return reject(err)
+                resolve()
+            })
+        })
+    }
+
 }
 
 class TagService {

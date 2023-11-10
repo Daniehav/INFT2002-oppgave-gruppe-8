@@ -1,5 +1,6 @@
 import express, {Response, NextFunction} from 'express'
 import { answerService, authService } from '../service'
+import { UserPass } from './auth-router'
 
 export type Answer = {
     answer_id:  number,
@@ -11,12 +12,26 @@ export type Answer = {
     accepted: boolean
 }
 
+export type Vote = {
+    vote_id: number;
+    answer_id: number;
+    user_id: number;
+    vote_type: 'upvote' | 'downvote';
+}
+
+export type Favorite = {
+    favorite_id: number;
+    answer_id: number;
+    user_id: number;
+}
+
 const router = express.Router()
 
-router.post('/create', isAuthenticated, async (req : any, res) => {
+router.post('/', isAuthenticated, async (req : any, res) => {
     try {
         const user = await authService.getUser(req.session.passport.user.username);
-        const question = await answerService.createAnswer(user.user_id, req.body.question_id ,req.body.answer);
+        
+        const question = await answerService.createAnswer(user.user_id, req.body.questionId ,req.body.answer);
         res.status(201).json(question);
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -93,6 +108,48 @@ router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
         }
     }
 });
+
+router.post('/:answerId/vote', async(req, res) => {
+    try {
+        
+        const answerId = parseInt(req.params.answerId)
+        console.log('vote',answerId, );
+        const vote = req.body.vote as 'upvote' | 'downvote'
+        const user = req.user as UserPass
+        //sjekke om brukeren har allered stemt på dette svare
+        const answerVote = await answerService.getVote(answerId, user.id)
+        if(!answerVote) {
+            const id = await answerService.setVote(answerId, user.id, vote)
+            res.status(200).json(id)
+        } else {
+            if(answerVote.vote_type == vote) {
+                await answerService.deleteVote(answerId, user.id)
+                res.sendStatus(200)
+            } else if(answerVote.vote_type != vote){
+                await answerService.updateVote(answerId, user.id, vote)
+                res.sendStatus(200)
+            }   
+        }
+        
+    } catch (error) {
+        res.status(500).send(error)
+    }
+
+})
+router.post(':answerId/favorite', async(req, res) => {
+    const answerId = parseInt(req.params.answerId)
+    const user = req.user as UserPass
+    const favorite = await answerService.getFavorite(answerId, user.id)
+    if(favorite) {
+        await answerService.deleteAnswer(answerId, user.id)
+        res.sendStatus(200)
+    } else {
+        const id = await answerService.setFavorite(answerId, user.id)
+        res.status(200).json(id)
+    }
+})
+
+
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {

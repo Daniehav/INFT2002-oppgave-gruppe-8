@@ -64,6 +64,9 @@ class QuestionService {
   delete(id: number) {
     return axios.delete('/q/' + id).then((response) => response.data.id);
   }
+  accept(questionId: number, answerId: number) {
+    return axios.put(`/questions/${questionId}/accept/${answerId}`).then(response => response.data)
+  }
 }
 
 class AnswerService {
@@ -73,14 +76,17 @@ class AnswerService {
   getAll(qId: number) {
     return axios.get<Answer[]>('/answers/question/' + qId).then((response) => response.data);
   }
-  create(text: string) {
-    return axios.post<number>('/answers',{text}).then(response => response.data)
+  create(questionId:number, answer: string) {
+    return axios.post<number>('/answers',{questionId,answer}).then(response => response.data)
   }
   edit(answer: Answer) {
     return axios.put('/answers', {answer}).then((response) => response.data);
   }
   delete(id: number) {
     return axios.delete('/answers/' + id).then((response) => response.data);
+  }
+  vote(answerId: number, vote: 'upvote' | 'downvote') {
+    return axios.post('/answers/'+ answerId+'/vote', {vote}).then(response => response.data)
   }
 }
 
@@ -100,6 +106,8 @@ class CommentService {
   delete(id: number) {
     return axios.delete('/comments/' + id).then((response) => response.data);
   }
+
+
 }
 
 class TagService {

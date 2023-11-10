@@ -70,6 +70,7 @@ export function Answers({question}: {question: Question}){
     const {profile} = useContext(ProfileContext)
     const [descending, setDescending] = useState(true)
     const [sortBy, setSortBy] = useState<'score' | 'latest'>('score')
+    const [userHasVoted, setUserHasVoted] = useState(false)
 
     useEffect(() => {
         if(!question.question_id) return
@@ -96,23 +97,52 @@ export function Answers({question}: {question: Question}){
         })
     }, [sortBy, descending]);
 
-    
+    const acceptAnswer = async(answer: Answer) => {
+        if(answer.user_id == profile.user_id || question.user_id != profile.user_id) return;
+        setAnswers(prev => {
+            return prev.map(a => {
+                if(a.answer_id == answer.answer_id) {
+                    return {...answer, accepted: !answer.accepted}
+                } else {
+                    return a
+                }
+            })
+        })
+        const accepted = await questionService.accept(question.question_id, answer.answer_id)
+    }
+
+    const vote = async (answer: Answer, vote: 'upvote' | 'downvote') => {
+        if(answer.user_id == profile.user_id || userHasVoted) return
+        setUserHasVoted(true)
+        setAnswers(prev => {
+            return prev.map(a => {
+                if(a.answer_id == answer.answer_id) {
+                    return {...answer, upvotes: vote == 'upvote'? answer.upvotes+1 : answer.upvotes,  downvotes: vote == 'downvote'? answer.downvotes + 1 : answer.downvotes}
+                } else {
+                    return a
+                }
+            })
+        })
+        const voted = await answerService.vote(answer.answer_id, vote)
+    }
 
     const answersElements = answers.map((answer, i) => {
         const postedQuestion = question.user_id == profile.user_id
         const postedAnswer = answer.user_id == profile.user_id
+        let acceptIconClass = answer.accepted? 'accepted' : postedQuestion? 'accept' : 'vis-hide'
+        console.log(acceptIconClass, postedQuestion);
+
         return (
             <div key={i} className='card bg-white wide-100'>
-                {postedQuestion && <img src={accept} alt=""/>}
-                {answer.accepted && <img src={accepted} alt="" />}
+                <img onClick={() => acceptAnswer(answer)} className={`icon-m ${acceptIconClass} pointer`} src={accepted} alt=""/>
                 <div className='row'>
                     <UsernamePfp userId={answer.user_id} withPfp={true} />
                 </div>
                 <div className="row">
                     <div className='flex-vert align-center gap-05'>
-                        <img className='vote-icon pointer' src={upvote} alt="" />
+                        <img onClick={() => vote(answer, 'upvote')} className='icon-s pointer' src={upvote} alt="" />
                         <p className='fs-3 vote-count'>{answer.upvotes - answer.downvotes}</p>
-                        <img className='vote-icon pointer' src={downvote} alt="" />
+                        <img onClick={() => vote(answer, 'downvote')} className='icon-s pointer' src={downvote} alt="" />
                     </div>
                     <p className='text-body'>{answer.body}</p>
                 </div>
@@ -127,6 +157,7 @@ export function Answers({question}: {question: Question}){
             </div>
         )
     })
+
     
     return(
         <>
@@ -192,18 +223,21 @@ function UsernamePfp ({userId, withPfp}: {userId: number, withPfp: boolean}){
     useEffect(() => {
         if(!userId) return
         const fetch =  async() => {
+            console.log(userId);
             const profile = await profileService.get(userId)
+            console.log(profile);
+            
             setProfile(profile)
             console.log(profile);
             
         }
         fetch()
-    }, []);
+    }, [userId]);
     
     return(
         <>
             {withPfp && <Pfp size='s' pfp={profile.profile_picture} level={profile.level} />}
-            <p>-{profile.display_name}</p>
+            <p className='fs-3'>{profile.display_name}</p>
         </>
     )
 } 
@@ -412,9 +446,10 @@ export function CreateAnswer() {
     const params = useParams()
 
     const post = async () => {
-        if(!answer) return
-        const answerId = await answerService.create(answer)
-        navigate('/question/'+ params.questionId)
+        if(!answer || !params.id ) return
+        const questionId = parseInt(params.id)
+        const answerId = await answerService.create(questionId, answer)
+        navigate('/question/'+ questionId)
     }
 
     return(

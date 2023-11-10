@@ -7,6 +7,7 @@
     /* --accent: #623CEA; */
     --accent: #E63946;
     --WHITE: #FFFFFF;
+    
 
     --fs-1: 1.8rem;
     --fs-2: 1.4rem;
@@ -277,9 +278,7 @@ input{
     margin:0;
 }
 
-.vote-icon{
-    width: 1.5rem;
-}
+
 
 .relative{
     position: relative;
@@ -527,6 +526,23 @@ input{
 
 input[type="file"] {
     display: none;
+}
+
+.icon-m{
+    width: 2rem;
+}
+
+.accepted{
+    filter: grayscale(0%);
+}
+
+.accept{
+    filter: grayscale(100%);
+    transition: filter 200ms linear;
+}
+.accept:hover{
+    filter: grayscale(70%);
+
 }
 
 .icon-s{

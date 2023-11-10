@@ -1,6 +1,6 @@
 import express, {Response, NextFunction} from 'express'
 import { profileService } from '../service'
-import { User } from './auth-router'
+import { User, UserPass } from './auth-router'
 
 export type Profile = {
     id:  number,
@@ -19,18 +19,22 @@ router.put('/:id', isAuthenticated, (req: any, res) => {
     res.status(200).send()
 }) 
 
-router.get('/:id', (req, res) => {
-    const id = parseInt(req.params.id)
-    profileService.getProfile(id).then((data) => {
-        res.json(data)
-    })
+router.get('/:id', isAuthenticated, async (req, res) => {
+    try {
+        console.log('asd',req.params.id);
+        const id = parseInt(req.params.id)
+        
+        const profile = await profileService.getProfile(id)
+        res.json(profile)
+    } catch (error) {
+        
+    }
 })
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
-    const user = req.user as User
     const id = parseInt(req.params.id)
     
-    if (req.isAuthenticated() && user.user_id == id) {
+    if (req.isAuthenticated()) {
         return next();
     }
 }
