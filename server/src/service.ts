@@ -166,18 +166,18 @@ class QuestionService {
     }
 
 
-    getFilteredQuestions(filter: string, preview: boolean): Promise<Question[]> {
+    getFilteredQuestions(filter: string, preview: boolean, tag?: string): Promise<Question[]> {
         let query: string = ''
 
         switch (filter) {
             case 'popular':
-                query = 'SELECT * FROM Questions ORDER BY views DESC'
+                query = 'SELECT Questions.*, COUNT(Answers.question_id) AS answer_count FROM Questions INNER JOIN Answers ON Questions.question_id = Answers.question_id GROUP BY Questions.question_id ORDER BY answer_count DESC'
                 break;
             case 'recent':
-                query = 'SELECT * FROM Questions ORDER BY created_at DESC'
+                query = 'SELECT Questions.*, COUNT(Answers.question_id) AS answer_count FROM Questions LEFT JOIN Answers ON Questions.question_id = Answers.question_id GROUP BY Questions.question_id ORDER BY created_at DESC'
                 break;
             case 'unanswered':
-                query = 'SELECT Questions.* FROM Questions LEFT JOIN Answers ON Questions.question_id = Answers.question_id WHERE Answers.question_id IS NULL'
+                query = 'SELECT Questions.*, COUNT(Answers.question_id) AS answer_count FROM Questions LEFT JOIN Answers ON Questions.question_id = Answers.question_id WHERE Answers.question_id IS NULL GROUP BY Questions.question_id'
                 break;
             case 'tag':
                 query = 'SELECT Questions.* FROM Questions INNER JOIN QuestionTags ON Questions.question_id = QuestionTags.question_id INNER JOIN Tags ON QuestionTags.tag_id = Tags.tag_id WHERE Tags.name =?'
@@ -189,7 +189,7 @@ class QuestionService {
         
 
         return new Promise((resolve, reject) => {
-            pool.query(query, (err, res: RowDataPacket[]) => {
+            pool.query(query, tag? [tag] : [], (err, res: RowDataPacket[]) => {
                 if(err) return reject(err)
                 resolve(res as Question[])
             })

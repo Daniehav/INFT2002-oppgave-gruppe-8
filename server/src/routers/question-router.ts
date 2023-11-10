@@ -138,7 +138,7 @@ router.get('/filter/:filter', async (req, res) => {
 router.get('/filter/tag/:tag', async (req, res) => {
     try {
         const {tag} = req.params
-        const questions = await questionService.getFilteredQuestions(tag, false);
+        const questions = await questionService.getFilteredQuestions('tag', false, tag);
         res.status(200).json(questions)
         
     } catch (error) {

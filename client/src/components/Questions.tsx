@@ -87,8 +87,10 @@ export function Answers({question}: {question: Question}){
             return prev.sort((a, b) => {
                 const scoreA = a.upvotes - a.downvotes
                 const scoreB = b.upvotes - b.downvotes
+                const dateA = new Date(a.updated_at).getTime()
+                const dateB = new Date(b.updated_at).getTime()
                 if(sortBy == 'score') return descending? scoreB - scoreA : scoreA - scoreB
-                if(sortBy == 'latest') return descending? b.updated_at.getTime() - a.updated_at.getTime() : a.updated_at.getTime() - b.updated_at.getTime()
+                if(sortBy == 'latest') return descending? dateB - dateA : dateA - dateB
                 return 0
             });
         })
@@ -188,9 +190,12 @@ function UsernamePfp ({userId, withPfp}: {userId: number, withPfp: boolean}){
     const [profile, setProfile] = useState<Profile>({} as Profile)
     
     useEffect(() => {
+        if(!userId) return
         const fetch =  async() => {
             const profile = await profileService.get(userId)
             setProfile(profile)
+            console.log(profile);
+            
         }
         fetch()
     }, []);
@@ -266,6 +271,7 @@ export function CreateQuestion() {
 
 
     const create = async () => {
+        if(!profile.user_id || title || body || tagIds)
         try {
             const questionId = await questionService.create(profile.user_id, title, body, tagIds)
             console.log(questionId);
@@ -312,7 +318,7 @@ export function CreateQuestion() {
                 </tbody>
             </table>
             <div className='tags'>{selectedTagElements}</div>
-            <button className='button fs-3 bg-accent text-WHITE align-end' onClick={create}>Post</button>
+            <button className={`button fs-3 ${title && body && tagIds.length > 0? 'bg-accent text-WHITE' : 'bg-light-grey text-black'} align-end`} onClick={create}>Post</button>
         </div>  
 
     )
@@ -492,7 +498,7 @@ export function FilteredQuestions() {
         switch (filter){
             case 'tag':
                 if(!tag) return
-                questionService.getFilter(tag).then((questions: Question[]) => setQuestion(questions));
+                questionService.getTagFilter(tag).then((questions: Question[]) => setQuestion(questions));
                 break;
             case 'recent':
                 questionService.getFilter(filter).then((questions: Question[]) => setQuestion(questions));

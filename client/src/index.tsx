@@ -1,6 +1,6 @@
 import React,{useState, useContext, useEffect, useRef} from 'react';
 import { createRoot } from 'react-dom/client';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes, Link } from 'react-router-dom';
 import { authService, profileService } from './service';
 import Home, {Tags} from './Home'
 import Profile from './components/Profile';
@@ -73,7 +73,7 @@ export default function Header({showMenu, setShowMenu}: {showMenu: boolean, setS
 
     return(
         <header className='header bg-light-grey text-black'>
-            <h1><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</h1>
+            <Link to={'/'} className='fs-1'><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</Link>
             {isAuthenticated? <>
 			//sett søkebar
 			 <div className='nav gap-2 flex align-end'>

@@ -27,9 +27,6 @@ class ProfileService {
         return axios.put<boolean>('/profile/'+ userId, {bio, pfp, displayName})
     }
 }
-//Date virker som en upraktisk datatype, vurder å endre
-//trenger man Question.Answered eller kan dette infereres i tilfeller hvor det finnes et svar med Answer.accepted = True?
-
 
 class QuestionService {
   get(id: number) {

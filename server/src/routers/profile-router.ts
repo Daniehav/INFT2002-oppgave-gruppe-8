@@ -19,7 +19,7 @@ router.put('/:id', isAuthenticated, (req: any, res) => {
     res.status(200).send()
 }) 
 
-router.get('/:id', isAuthenticated, (req, res) => {
+router.get('/:id', (req, res) => {
     const id = parseInt(req.params.id)
     profileService.getProfile(id).then((data) => {
         res.json(data)
