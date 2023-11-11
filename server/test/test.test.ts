@@ -214,7 +214,34 @@ describe('Delete questions (DELETE)', () => {
     });
 });
 describe('Update questions (PUT)', () => {
-
+    test.skip('Edit question (200 OK)', (done) => {
+        axios.put('/questions/1', {question_id: 1, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}).then((res) => {
+            expect(res.status).toEqual(200);
+            expect(res.data).toEqual({question_id: 1, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'});
+            done();
+        });
+    });
+    test.skip('Edit question (404 Question not found)', (done) => {
+        axios.put('/questions/7', {question_id: 7, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}).then((res) => {
+            expect(res.status).toEqual(404);
+            expect(res.data).toEqual('Question not found');
+            done();
+        });
+    });
+    test.skip('Edit question (400 Invalid User ID)', (done) => {
+        axios.put('/questions/1', {question_id: 1, user_id: 8, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}).then((res) => {
+            expect(res.status).toEqual(400);
+            expect(res.data).toEqual('Invalid User ID');
+            done();
+        });
+    });
+    test.skip('Edit question (500 Internal Server Error)', (done) => {
+        axios.put('/questions/1', {question_id: 1, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}).then((res) => {
+            expect(res.status).toEqual(500);
+            expect(res.data).toEqual('Internal Server Error');
+            done();
+        });
+    });
 });
 describe('Fetch answers (GET)', () => {
 
