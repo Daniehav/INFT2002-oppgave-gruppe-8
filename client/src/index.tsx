@@ -9,6 +9,8 @@ import { ThemeContext, ThemeProvider, AuthProvider, AuthContext, ProfileProvider
 import './app.css'
 import { useNavigate } from 'react-router-dom';
 import Pfp from './components/Pfp';
+import { SearchList } from './components/SearchResults';
+import {Searchbar} from './components/Searchbar'
 import { QuestionDetails, EditQuestion, EditAnswer, FilteredQuestions, CreateQuestion, CreateAnswer, CreateComment, EditComment} from './components/Questions'
 
 
@@ -47,12 +49,12 @@ function App() {
 						<Route path="/question/:id/answer/edit" element={<EditAnswer />} />
 						<Route path="/question/:id/comment/create" element={<CreateComment />} />
 						<Route path="/question/:id/comment/edit" element={<EditComment />} />
-
 					</Route>
 					<Route path="/question/create" element={<CreateQuestion />} />
 					<Route path="/question/filter/:filter" element={<FilteredQuestions />} />
 					<Route path="/question/filter/:filter/:tag" element={<FilteredQuestions />} />
 					<Route path="/question/:id/edit" element={<EditQuestion />} />
+					<Route path="/q/search/:query/results" element={<SearchList />} />
 				</Route>
 				<Route path="/login" element={<AuthenticationPage/>} />
 				<Route path="/profile" element={<Profile/>} />
@@ -75,8 +77,9 @@ export default function Header({showMenu, setShowMenu}: {showMenu: boolean, setS
         <header className='header bg-light-grey text-black'>
             <h1><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</h1>
             {isAuthenticated? <>
-			//sett søkebar
+
 			 <div className='nav gap-2 flex align-end'>
+				<Searchbar />
                 <div className='pointer' onClick={() => setShowMenu(true)}>
                     <Pfp size='s' pfp={profile.profile_picture} level={profile.level} />
                 </div>

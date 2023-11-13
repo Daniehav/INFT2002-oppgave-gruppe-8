@@ -113,6 +113,12 @@ router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     }
 });
 
+router.get('/search/:query', (req, res) => {
+    const query = req.params.query;
+
+    questionService.search(query).then((questions: Question[]) => res.send(questions)).catch((err) => res.status(500).send(err))
+});
+
 router.get('/preview/:filter', async(req, res) => {
     try {
         const {filter} = req.params
@@ -123,6 +129,7 @@ router.get('/preview/:filter', async(req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
+
 
 router.get('/filter/:filter', async (req, res) => {
     try {
@@ -135,6 +142,7 @@ router.get('/filter/:filter', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
+
 router.get('/filter/tag/:tag', async (req, res) => {
     try {
         const {tag} = req.params
@@ -146,6 +154,7 @@ router.get('/filter/tag/:tag', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
+
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {
