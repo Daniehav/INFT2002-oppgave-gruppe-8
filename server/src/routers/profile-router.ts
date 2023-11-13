@@ -13,9 +13,10 @@ export type Profile = {
 
 const router = express.Router()
 
-router.post('/:id', isAuthenticated, (req: any, res) => {
+router.put('/:id', isAuthenticated, (req: any, res) => {
     const id = parseInt(req.params.id)
-    profileService.updateProfile(id, req.body.bio, req.body.pfp)
+    profileService.updateProfile(id, req.body.bio, req.body.pfp, req.body.displayName)
+    res.status(200).send()
 }) 
 
 router.get('/:id', isAuthenticated, (req, res) => {
@@ -29,7 +30,7 @@ function isAuthenticated(req: any, res: Response, next: NextFunction) {
     const user = req.user as User
     const id = parseInt(req.params.id)
     
-    if (req.isAuthenticated() && user.id == id) {
+    if (req.isAuthenticated() && user.user_id == id) {
         return next();
     }
 }

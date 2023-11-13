@@ -5,12 +5,12 @@ import { ProfileContext } from "../context/Context";
 type props = {
     size: 's' | 'm' | 'l'
     pfp: string | null,
+    level: number
 }
 
 
-function Pfp({size, pfp}: props) {
+function Pfp({size, pfp, level}: props) {
     
-    const {profile} = useContext(ProfileContext)
     
     const fsMap = {
         's': 5,
@@ -21,7 +21,7 @@ function Pfp({size, pfp}: props) {
     return ( 
         <div className="pfp-level">
             <img className={`pfp pfp-${size}`} src={pfp? pfp : defaultPfp} alt="" />
-            <p className={`level fs-${fs}`}>{profile.level}</p>
+            <p className={`level fs-${fs}`}>{level}</p>
         </div>
      );
 }

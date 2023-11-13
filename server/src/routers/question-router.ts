@@ -2,24 +2,24 @@ import express, {Response, NextFunction} from 'express'
 import { questionService, authService } from '../service'
 
 export type Question = {
-    id:  number,
-    userId: number,
-    title: string,
-    body: string,
-}
+    question_id: number;
+    user_id: number;
+    title: string;
+    body: string;
+    views: number;
+    created_at: Date;
+    updated_at: Date;
+    answer_count?: number;
+};
 
 const router = express.Router()
 
-router.post('/create', isAuthenticated, async (req, res) => {
+
+router.post('/', isAuthenticated, async (req : any, res) => {
     try {
-        const userId = parseInt(req.body.user_id, 10);
-        if (isNaN(userId)) {
-            return res.status(400).send('Invalid user ID');
-        }
-        
-        await authService.getUserById(userId);
-        const question = await questionService.createQuestion(userId, req.body.title, req.body.question);
-        res.status(201).json(question);
+        const user = await authService.getUser(req.session.passport.user.username);
+        const questionId = await questionService.createQuestion(user.user_id, req.body.title, req.body.body, req.body.tags);
+        res.status(201).send(questionId.toString());
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
             return res.status(400).send('Invalid user ID');
@@ -28,30 +28,26 @@ router.post('/create', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, (req, res) => {
-    const questionId = parseInt(req.params.questionId);
-    questionService.getQuestionById(questionId)
-        .then(question => {
-            if (question) {
-                res.status(200).json(question);
-            } else {
-                res.status(404).send('Question not found');
-            }
-        })
-        .catch(error => {
-            console.error('Failed to fetch question:', error);
-            res.status(500).send('Internal Server Error');
-        });
+router.get('/:questionId', isAuthenticated, async (req : any, res) => {
+    try {
+        const questionId = parseInt(req.params.questionId);
+        const question = await questionService.getQuestionById(questionId)
+        if (question) {
+            res.status(200).json(question);
+        } else {
+            res.status(404).send('Question not found');
+        }
+        
+    } catch (error) {
+        // console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-router.put('/:questionId', isAuthenticated, async (req, res) => {
+router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
     try {
-        const userId = parseInt(req.body.user_id, 10);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         const questionId = parseInt(req.params.questionId, 10);
-
-        if (isNaN(userId)) {
-            return res.status(400).send('Invalid user ID');
-        }
         
         const fetchedQuestion = await questionService.getQuestionById(questionId);
 
@@ -59,7 +55,7 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
             return res.status(404).send('Question not found');
         }
 
-        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.question);
+        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
         res.status(200).json(question); 
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -69,26 +65,43 @@ router.put('/:questionId', isAuthenticated, async (req, res) => {
     }
 });
 
-router.get('/', isAuthenticated, (req, res) => {
-    questionService.getAllQuestions()
-        .then(questions => {
-            res.status(200).json(questions);
-        })
-        .catch(error => {
-            console.error('Failed to fetch questions:', error);
-            res.status(500).send('Internal Server Error');
-        });
+router.get('/', isAuthenticated, async (req: any, res: Response) => {
+    try {
+        const questions = await questionService.getAllQuestions();
+        res.status(200).json(questions);
+    } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
-router.delete('/:questionId', isAuthenticated, async (req, res) => {
+router.get('/profile/:userId', async (req,res) => {
+    try {
+        const questionId = parseInt(req.params.userId);
+        
+        const questions = await questionService.getQuestionByUser(questionId)
+        if (questions) {
+            res.status(200).json(questions);
+        } else {
+            res.status(404).send('Question not found');
+        }
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+})
+
+router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId, 10);
-
+        
         if (isNaN(questionId)) {
             return res.status(400).send('Invalid question ID');
         }
         const question = await questionService.getQuestionById(questionId); // check if question exist
-        await questionService.deleteQuestion(question.id, 1);
+        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
+        await questionService.deleteQuestion(question.question_id, userId);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No question found') {
@@ -104,7 +117,43 @@ router.get('/search/:query', (req, res) => {
     const query = req.params.query;
 
     questionService.search(query).then((questions: Question[]) => res.send(questions)).catch((err) => res.status(500).send(err))
-})
+});
+
+
+router.get('/preview/:filter', async(req, res) => {
+    try {
+        const {filter} = req.params
+        const questions = await questionService.getFilteredQuestions(filter, true)
+        res.status(200).json(questions)
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.get('/filter/:filter', async (req, res) => {
+    try {
+        const {filter} = req.params
+        const questions = await questionService.getFilteredQuestions(filter, false);
+        res.status(200).json(questions)
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+router.get('/filter/tag/:tag', async (req, res) => {
+    try {
+        const {tag} = req.params
+        const questions = await questionService.getFilteredQuestions(tag, false);
+        res.status(200).json(questions)
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+});
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {

@@ -8,7 +8,7 @@ const router = express.Router()
 
 
 export type User = {
-    id: number,
+    user_id: number,
     email: string,
     username: string,
     hashed_password: Buffer,
@@ -46,7 +46,7 @@ router.post('/signup', (req: any, res, next) => {
             .then((user: User) => {
                 req.login(user, (err: Error) => {
                     if (err) { return next(err); }
-                    res.send(user.id.toString());
+                    res.send(user.user_id.toString());
                   });
             }).catch((error: Error) => {
                 res.send(error)
@@ -63,10 +63,9 @@ router.post('/signin', passport.authenticate('local', {
 
 
 router.get('/authenticated', isAuthenticated ,(req, res) => {
-    const user = req.user as User
-	console.log(user);
+    const user = req.user as any
     if(!user) return res.sendStatus(404)
-    res.send(user.id.toString())
+    res.json(user.id)
 })
 
 router.post('/logout', isAuthenticated, (req, res, next) => {
@@ -79,7 +78,7 @@ router.post('/logout', isAuthenticated, (req, res, next) => {
 
 passport.serializeUser((user: User, cb: (err: null | Error, user: User) => void) => {
     process.nextTick(() => {
-      cb(null, { id: user.id, username: user.username } as User);
+      cb(null, { user_id: user.user_id, username: user.username } as User);
     });
   });
   
