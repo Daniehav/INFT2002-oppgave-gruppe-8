@@ -40,15 +40,14 @@ class QuestionService {
   } 
 
   
-// burde returnere alle id-ene til spørsmål som passer til søk
   search(text: string) {
-    return axios.get<number[]>('/questions/search/query='+text).then((response) => response.data);
+    return axios.get<Question[]>('/questions/search/'+text).then((response) => response.data);
   }
 
   create(userId: number, title: string, body: string, tags: number[]) {
     return axios.post<string>('/questions', {userId, title, body, tags}).then((response) => response.data);
   }
-  
+
   getPreview(category: 'popular' | 'recent' | 'unanswered') {
     return axios.get<Question[]>('/questions/preview/'+ category).then((response) => response.data);
   }
