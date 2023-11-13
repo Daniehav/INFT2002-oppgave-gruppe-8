@@ -4,6 +4,8 @@ import profileRouter from './routers/profile-router'
 import questionRouter from './routers/question-router'
 import answersRouter from './routers/answer-router'
 import tagRouter from './routers/tag-router'
+import favoriteRouter from './routers/favorite-router'
+import commentRouter from './routers/comment-router'
 import passport from 'passport'
 import session from 'express-session'
 var MySQLStore = require('express-mysql-session')(session);
@@ -41,6 +43,8 @@ app.use('/api/v1/profile', profileRouter);
 app.use('/api/v1/questions', questionRouter);
 app.use('/api/v1/answers', answersRouter);
 app.use('/api/v1/tags', tagRouter);
+app.use('/api/v1/favorites', favoriteRouter);
+app.use('/api/v1/comments', commentRouter);
 
 export default app;
 

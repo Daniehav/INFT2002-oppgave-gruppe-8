@@ -1,6 +1,5 @@
 import express, {Response, NextFunction} from 'express'
 import { profileService } from '../service'
-import { User, UserPass } from './auth-router'
 
 export type Profile = {
     id:  number,
@@ -21,10 +20,10 @@ router.put('/:id', isAuthenticated, (req: any, res) => {
 
 router.get('/:id', isAuthenticated, async (req, res) => {
     try {
-        console.log('asd',req.params.id);
         const id = parseInt(req.params.id)
         
         const profile = await profileService.getProfile(id)
+        profile.level = profile.points / 5 + 1
         res.json(profile)
     } catch (error) {
         
@@ -32,8 +31,6 @@ router.get('/:id', isAuthenticated, async (req, res) => {
 })
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
-    const id = parseInt(req.params.id)
-    
     if (req.isAuthenticated()) {
         return next();
     }

@@ -152,15 +152,14 @@ router.put('/:questionId/accept/:answerId', async (req, res) => {
     try {
         const answerId = parseInt(req.params.answerId)
         const questionId = parseInt(req.params.questionId)
+        const answerUser = req.body.userId
         const user = req.user as UserPass
         if(!user) return
         const userId = user.id
-    
         const question = await questionService.getQuestionById(questionId)
         if(question.user_id != userId) return res.sendStatus(401)
-        console.log(question);
         
-        await questionService.acceptAnswer(answerId)
+        await questionService.acceptAnswer(answerId, answerUser)
         res.status(200)
         
     } catch (error) {
