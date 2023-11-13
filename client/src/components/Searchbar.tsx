@@ -9,11 +9,12 @@ export function Searchbar() {
     const navigate = useNavigate();
     
     // 1 sek etter inntasting slutter kommer det inn søkeforslag
-    //flytt over til Suggestions? trenger å forsikre seg om at ting rendres
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {
-            const questions = await questionService.search(searchQuery);
-            setSuggestions(questions)
+            if (searchQuery.length > 0) {
+                const questions = await questionService.search(searchQuery);
+                setSuggestions(questions)
+            }
         }, 1000)
     
         return () => clearTimeout(delayDebounceFn)
@@ -23,33 +24,28 @@ export function Searchbar() {
 	    setSearchQuery(e.target.value)
     }
     function handleSubmit(){
-	    navigate('/q/search/'+searchQuery+'/results');
+	    navigate('/question/search/'+searchQuery+'/results');
     }
     // sliter med å passere spørsmål over til <Suggestions />-komponenten
     return(
         <div>
             <input type='text' onChange={handleSearchText} />
             <button onClick={handleSubmit}>search</button><br />
-            <Suggestions {... suggestions} />
+            <Suggestions questions={suggestions} />
         </div>
     )
 }
 
-function Suggestions(questions: Question[]) {
-    function handleClick(id: number) {
-        const navigate = useNavigate();
-        navigate('/q/'+id)
-    }
+function Suggestions({questions}: {questions: Question[]}) {
+    const navigate = useNavigate();
 
-    if(questions.length > 0){  
-        return (
-            <div>
-                {questions.map((question) => {<><div onClick={() => handleClick(question.question_id)}>{question.title}</div><br /></>})}
-            </div>
-        )
-    } else {
-        return (
-            <></>
-        )
+    function handleClick(id: number) {
+        navigate('/question/'+id)
     }
+    // tror Searchbar må rendres på nytt for at dette skal vises
+    return (
+        <div className="nav flex-vert">
+            {questions.map((question) => {<><div onClick={() => handleClick(question.question_id)}>{question.title}</div></>})}
+        </div>
+    )
 }

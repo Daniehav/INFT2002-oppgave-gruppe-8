@@ -53,7 +53,7 @@ function App() {
 					<Route path="/question/filter/:filter" element={<FilteredQuestions />} />
 					<Route path="/question/filter/:filter/:tag" element={<FilteredQuestions />} />
 					<Route path="/question/:id/edit" element={<EditQuestion />} />
-					<Route path="/q/search/:query/results" element={<SearchList />} />
+					<Route path="/question/search/:query/results" element={<SearchList />} />
 				</Route>
 				<Route path="/login" element={<AuthenticationPage/>} />
 				<Route path="/profile" element={<Profile/>} />

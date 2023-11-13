@@ -7,7 +7,7 @@ function CompactQuestion(question: Question) {
     const navigate = useNavigate();
 
     return (
-        <div onClick={() => navigate('/q/'+question.question_id)}>
+        <div onClick={() => navigate('/question/'+question.question_id)}>
             <div>{question.title}</div>
             <div>{question.body}</div>
         </div>
