@@ -6,8 +6,10 @@ import { Question } from '../types';
 export function Searchbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] : [Question[], Dispatch<SetStateAction<Question[]>>] = useState([{question_id: 0,user_id: 0,title: "",body: "",views: 0,created_at: new Date(),updated_at: new Date()}])
+    const navigate = useNavigate();
     
     // 1 sek etter inntasting slutter kommer det inn søkeforslag
+    //flytt over til Suggestions? trenger å forsikre seg om at ting rendres
     useEffect(() => {
         const delayDebounceFn = setTimeout(async () => {
             const questions = await questionService.search(searchQuery);
@@ -21,7 +23,6 @@ export function Searchbar() {
 	    setSearchQuery(e.target.value)
     }
     function handleSubmit(){
-        const navigate = useNavigate();
 	    navigate('/q/search/'+searchQuery+'/results');
     }
     // sliter med å passere spørsmål over til <Suggestions />-komponenten
