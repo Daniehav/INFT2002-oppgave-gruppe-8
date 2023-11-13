@@ -95,19 +95,18 @@ class AnswerService {
 
 
 class CommentService {
-  get(parent: string, parentId: number) {
-    return axios.get<QuestionComment[] | AnswerComment[]>(`/comments/${parent}/${parentId}`).then((response) => response.data);
-  }
-  create(parent: string, parentId: number, body: string) {
-    return axios.post<void>(`/comments/${parent}/${parentId}`,{body}).then(response => response.data)
-  }
-  edit(commentId: number,parent: string,body: string) {
-    return axios.put(`/comments/${parent}/${commentId}`, {body}).then((response) => response.data);
-  }
-  delete(commentId: number,parent: string) {
-    return axios.delete(`/comments/${parent}/${commentId}`).then((response) => response.data);
-  }
-
+    get(parent: string, parentId: number) {
+      return axios.get<QuestionComment[] | AnswerComment[]>(`/comments/${parent}/${parentId}`).then((response) => response.data);
+    }
+    create(parent: string, parentId: number, body: string) {
+      return axios.post<void>(`/comments/${parent}/${parentId}`,{body}).then(response => response.data)
+    }
+    edit(commentId: number,parent: string,body: string) {
+      return axios.put(`/comments/${parent}/${commentId}`, {body}).then((response) => response.data);
+    }
+    delete(commentId: number,parent: string) {
+      return axios.delete(`/comments/${parent}/${commentId}`).then((response) => response.data);
+  	}	
 
 }
 
