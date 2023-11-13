@@ -23,7 +23,8 @@ router.get('/:id', isAuthenticated, async (req, res) => {
         const id = parseInt(req.params.id)
         
         const profile = await profileService.getProfile(id)
-        profile.level = profile.points / 5 + 1
+        const nonNegativePoints = Math.max(0, profile.points);
+        profile.level = Math.floor(nonNegativePoints / 5) + 1;
         res.json(profile)
     } catch (error) {
         

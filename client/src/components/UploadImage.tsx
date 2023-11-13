@@ -14,13 +14,11 @@ function UploadImage({uploadImage, show}: {show: boolean,uploadImage: React.Disp
             const imageCompressor = new ImageCompressor;
     
             const compressorSettings = {
-                toWidth : 100,
-                toHeight : 100,
+                toWidth : 200,
+                toHeight : 200,
                 mimeType : 'image/png',
                 mode : 'strict',
                 quality : 0.6,
-                grayScale : true,
-                sepia : true,
                 threshold : 127,
                 speed : 'low'
             };

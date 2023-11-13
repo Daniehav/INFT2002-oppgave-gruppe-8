@@ -56,8 +56,8 @@ export function QuestionDetails() {
                     <p className='fs-5'>Modified {formatDate(question.updated_at)}</p>
                     <p className='fs-5'>Viewed {question.views} {question.views == 1? 'time' : 'times'}</p>
                     <div className='tags'>{tagsElements}</div>
-                    <Link to={`/question/${question.question_id}/edit`}>Edit</Link>
-                    <button onClick={deleteQuestion}>Delete</button>
+                    {profile.user_id == question.user_id &&<><Link className='button bg-light-grey text-black fs-4' to={`/question/${question.question_id}/edit`}>Edit</Link>
+                    <button className='button bg-light-grey text-black fs-4' onClick={deleteQuestion}>Delete</button></>}
                 </div>
             </div>
             <p className='fs-4 text-body'>{question.body}</p>
@@ -123,7 +123,7 @@ export function Answers({question}: {question: Question}){
         const accepted = await questionService.accept(question.question_id, answer.answer_id, answer.user_id)
     }
     const favoriteAnswer = async(answer: Answer) => {
-        if(answer.user_id == profile.user_id || question.user_id != profile.user_id) return;
+        if(answer.user_id == profile.user_id) return;
        
         const favorited = await favoriteService.setFavorite(answer.answer_id)
         setFavorites(prev => [...prev, answer.answer_id])
@@ -159,6 +159,8 @@ export function Answers({question}: {question: Question}){
             <div className='card bg-white wide-100'>
                 <div className='row'>
                     <UsernamePfp userId={answer.user_id} withPfp={true} />
+                    <img onClick={() => favoriteAnswer(answer)} className={`icon-m pointer`} src={favoriteIcon} alt=""/>
+                    <img onClick={() => acceptAnswer(answer)} className={`icon-m ${acceptIconClass} pointer`} src={accepted} alt=""/>
                     <p className='fs-5'>Asked {formatDate(answer.created_at)}</p>
                     <p className='fs-5'>Modified {formatDate(answer.updated_at)}</p>
                 </div>
@@ -172,8 +174,6 @@ export function Answers({question}: {question: Question}){
                         <p className='text-body'>{answer.body}</p>
                     </div>
                     <div className="flex-vert align-start gap-1">
-                        <img onClick={() => acceptAnswer(answer)} className={`icon-m ${acceptIconClass} pointer`} src={accepted} alt=""/>
-                        <img onClick={() => favoriteAnswer(answer)} className={`icon-m pointer`} src={favoriteIcon} alt=""/>
                         {answer.user_id != profile.user_id && <button onClick={() => setShowCreateAnswerComment(answer.answer_id)} className="button bg-light-grey text-black fs-3">Post comment</button>}
                     </div>
                 </div>
@@ -181,9 +181,9 @@ export function Answers({question}: {question: Question}){
                     <Comments parent={answer} />
                 </div>
                 {postedAnswer && 
-                <div>
-                    <Link to={`/question/${question.question_id}/answer/${answer.answer_id}/edit`}>Edit</Link>
-                    <button onClick={() => deleteAnswer(answer.answer_id)}>Delete</button>
+                <div className='row justify-end'>
+                    <Link className='button bg-light-grey text-black fs-4' to={`/question/${question.question_id}/answer/${answer.answer_id}/edit`}>Edit</Link>
+                    <button className='button bg-light-grey text-black fs-4' onClick={() => deleteAnswer(answer.answer_id)}>Delete</button>
                 </div>}
             </div>
             {showCreateAnswerComment == answer.answer_id && <CreateComment parent='answer' parentId={answer.answer_id} show={setShowCreateAnswerComment} />}
@@ -261,7 +261,7 @@ function Comments({parent}: {parent: Question | Answer}){
     })
     
     return(
-        commentElements.length > 0? <div className={`${parentType == 'question'? 'bg-white wide-75' : ''}  border-bottom`}>
+        commentElements.length > 0? <div className={`${parentType == 'question'? 'card bg-white wide-75' : 'border-top'}  border-bottom`}>
             {commentElements}
         </div> : <></>
     )
@@ -637,7 +637,6 @@ export function FilteredQuestions() {
     
     const {filter, tag} = params
     const [questions, setQuestion] = useState<Question[]>([])
-    const [questionTags, setQuestionTags] = useState<Question[]>([])
     
     useEffect(() => {
         if(!filter) return
@@ -659,6 +658,16 @@ export function FilteredQuestions() {
         
     }, [filter]);
 
+    const category = filter? `${filter[0].toUpperCase()}${filter.slice(1)} questions` : ''
+    
+    return(
+        <div className='wide-75'>
+            <QuestionList questions={questions} category={category} />
+        </div>
+    )
+}
+
+export function QuestionList({questions, category}: {questions: Question[], category: string}) {
     const questionElements = questions.map((question, i) => (
         <Link to={'/question/' + question.question_id} className='card row bg-white wide-75' key={i}>
             <p className="fs-2">{question.title}</p>
@@ -667,9 +676,10 @@ export function FilteredQuestions() {
             <div className="tags">{<QuestionTags questionId={question.question_id}/>}</div>
         </Link>
     ))
-    
+
     return(
-        <div className='wide-75'>
+        <div className='wide-100'>
+            <p className="fs-1">{category}</p>
             {questionElements}
         </div>
     )

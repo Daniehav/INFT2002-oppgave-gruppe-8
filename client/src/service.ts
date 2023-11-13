@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {CancelTokenSource} from "axios";
 import { Profile, Question, Answer, QuestionComment, AnswerComment, Tag } from "./types";
 
 axios.defaults.baseURL = 'http://localhost:3000/api/v1';
@@ -40,8 +40,8 @@ class QuestionService {
   } 
 
   
-  search(text: string) {
-    return axios.get<Question[]>('/questions/search/'+text).then((response) => response.data);
+  search(text: string, cancelToken?: CancelTokenSource ) {
+    return axios.get<Question[]>('/questions/search/'+text,cancelToken?{cancelToken: cancelToken.token} : {}).then((response) => response.data);
   }
 
   create(userId: number, title: string, body: string, tags: number[]) {

@@ -9,9 +9,8 @@ import { ThemeContext, ThemeProvider, AuthProvider, AuthContext, ProfileProvider
 import './app.css'
 import { useNavigate } from 'react-router-dom';
 import Pfp from './components/Pfp';
-import { SearchList } from './components/SearchResults';
-import {Searchbar} from './components/Searchbar'
-import { QuestionDetails, EditQuestion, EditAnswer, FilteredQuestions, CreateQuestion, CreateAnswer, CreateComment, EditComment} from './components/Questions'
+import {Searchbar, SearchList} from './components/Searchbar'
+import { QuestionDetails, EditQuestion, EditAnswer, FilteredQuestions, CreateQuestion, CreateAnswer} from './components/Questions'
 
 
 
@@ -53,7 +52,7 @@ function App() {
 					<Route path="/question/filter/:filter" element={<FilteredQuestions />} />
 					<Route path="/question/filter/:filter/:tag" element={<FilteredQuestions />} />
 					<Route path="/question/:id/edit" element={<EditQuestion />} />
-					<Route path="/q/search/:query/results" element={<SearchList />} />
+					<Route path="/question/search/:query/results" element={<SearchList />} />
 				</Route>
 				<Route path="/login" element={<AuthenticationPage/>} />
 				<Route path="/profile" element={<Profile/>} />
@@ -73,18 +72,17 @@ export default function Header({showMenu, setShowMenu}: {showMenu: boolean, setS
     const {isAuthenticated, logOut} = useContext(AuthContext)
     const navigate = useNavigate()
 
-
     return(
         <header className='header bg-light-grey text-black'>
             <Link to={'/'} className='fs-1'><span className="text-accent">Q</span>&<span className="text-accent">A</span> Platform</Link>
-            {isAuthenticated? <>
 
-			 <div className='nav gap-2 flex align-end'>
+			 <div className='nav gap-2 flex align-center'>
 				<Searchbar />
                 <div className='pointer' onClick={() => setShowMenu(true)}>
                     <Pfp size='s' pfp={profile.profile_picture} level={profile.level} />
                 </div>
             </div>
+            {isAuthenticated? <>
 			<div className={`user-menu ${!showMenu && 'user-menu--hide'}`}>
 				<button className='text-black' onClick={() => navigate('/')}>Home</button>
 				<button className='text-black' onClick={() => navigate('/profile')}>Profile</button>
