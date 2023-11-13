@@ -29,17 +29,24 @@ export type Answer = {
     accepted: boolean;
     created_at: Date;
     updated_at: Date;
+    question_title?: string;
 }
 
-export type Comment = {
-  comment_id: number;
-  user_id: number;
-  question_id: number;
-  answer_id: number;
-  body: string;
-  created_at: Date;
-  updated_at: Date;
-  username?: string;
+export type Parent = 'question' | 'answers'
+
+interface Comment{
+    comment_id: number;
+    user_id: number;
+    body: string;
+    created_at: Date;
+    updated_at: Date;
+}
+
+export interface QuestionComment extends Comment {
+    question_id: number;
+};
+export interface AnswerComment extends Comment {
+    answer_id: number;
 };
 
 export type Tag = {

@@ -20,21 +20,25 @@ export default function Home() {
     }, []);
     
     const tags = allTags.slice(0,10).sort((a,b) => b.count - a.count).map((t,i) => (
-        <button key={i} className='tag fs-5'>{t.name}</button>
+        <Link to={'/question/filter/tag/'+t.name} key={i} className='tag fs-4'>{t.name}</Link>
     ))
     return(
         <div className='container home-container'>
+            <header className='subheader card bg-white text-black'>
+                <Link className='button bg-accent text-WHITE' to={'/question/create'}>Post new question</Link>
+                <Link className='button bg-light-grey' to={'/question/filter/popular'}>Popular questions</Link>
+                <Link className='button bg-light-grey' to={'/question/filter/recent'}>Recent questions</Link>
+                <Link className='button bg-light-grey' to={'/question/filter/unanswered'}>Unanswered questions</Link>
+                <Link className='button bg-light-grey' to={'/tags'}>All tags</Link>
+            </header>
             {noOutlet && <>
-                <header className='subheader card bg-white text-black'>
-                    <Link className='button bg-light-grey' to={'/question/create'}>Post new question</Link>
-                </header>
                 <div className='flex wide-100 row align-start'>
                     <Preview filter={'popular'} />
                     <Preview filter={'recent'} />
                     <Preview filter={'unanswered'} />
                 </div>
                 <div className='card bg-white'>
-                    <p onClick={() => navigate('/question/tags')} className='fs-3'>Tags</p>
+                    <p onClick={() => navigate('/tags')} className='fs-3'>Tags</p>
                     <div className="tags">
                         {tags}
                     </div>
@@ -66,9 +70,10 @@ function Preview({filter}:{filter: 'popular' | 'recent' | 'unanswered'}) {
     const category = `${filter[0].toUpperCase()}${filter.slice(1)} questions`
 
     const previewElements = preview.map((q, i) => (
-        <Link to={`question/${q.question_id}`} key={i} className='row'>
+        <Link to={`question/${q.question_id}`} key={i} className='row space-between'>
             <p>{q.title}</p>
-            <p>Views: {q.views}</p>
+            <p>{q.views} views</p>
+            <p>{q.answer_count} answers</p>
         </Link>
     ))
 
@@ -95,7 +100,7 @@ export function Tags() {
     }, []);
     
     const tags = allTags.sort((a,b) => b.count - a.count).map((t,i) => (
-        <Link to={'/questions/filter/tag/'+t.name} key={i} className='tag fs-4'>{t.name} <span className='fs-5'>{t.count}</span></Link>
+        <Link to={'/questions/filter/tag/'+t.name} key={i} className='tag fs-3'>{t.name} <span className='fs-5'>{t.count}</span></Link>
     ))
 
     const createTag = async () => {
