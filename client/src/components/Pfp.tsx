@@ -3,9 +3,9 @@ import defaultPfp from '../assets/default-pfp.png'
 import { ProfileContext } from "../context/Context";
 
 type props = {
-    size: 's' | 'm' | 'l'
-    pfp: string | null,
-    level: number
+    size: 's' | 'm' | 'l';
+    pfp: string | null;
+    level: number;
 }
 
 
@@ -21,7 +21,7 @@ function Pfp({size, pfp, level}: props) {
     return ( 
         <div className="pfp-level">
             <img className={`pfp pfp-${size}`} src={pfp? pfp : defaultPfp} alt="" />
-            <p className={`level fs-${fs}`}>{level}</p>
+            <p className={`level fs-${fs} text-WHITE`}>{level}</p>
         </div>
      );
 }

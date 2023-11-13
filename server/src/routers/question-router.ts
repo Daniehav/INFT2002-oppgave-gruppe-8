@@ -1,5 +1,6 @@
 import express, {Response, NextFunction} from 'express'
-import { questionService, authService } from '../service'
+import { questionService, authService, answerService } from '../service'
+import { UserPass } from './auth-router';
 
 export type Question = {
     question_id: number;
@@ -28,7 +29,7 @@ router.post('/', isAuthenticated, async (req : any, res) => {
     }
 });
 
-router.get('/:questionId', isAuthenticated, async (req : any, res) => {
+router.get('/:questionId', async (req : any, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
         const question = await questionService.getQuestionById(questionId)
@@ -146,7 +147,7 @@ router.get('/filter/:filter', async (req, res) => {
 router.get('/filter/tag/:tag', async (req, res) => {
     try {
         const {tag} = req.params
-        const questions = await questionService.getFilteredQuestions(tag, false);
+        const questions = await questionService.getFilteredQuestions('tag', false, tag);
         res.status(200).json(questions)
         
     } catch (error) {
@@ -155,6 +156,26 @@ router.get('/filter/tag/:tag', async (req, res) => {
     }
 })
 
+router.put('/:questionId/accept/:answerId', async (req, res) => {
+    try {
+        const answerId = parseInt(req.params.answerId)
+        const questionId = parseInt(req.params.questionId)
+        const answerUser = req.body.userId
+        const user = req.user as UserPass
+        if(!user) return
+        const userId = user.id
+        const question = await questionService.getQuestionById(questionId)
+        if(question.user_id != userId) return res.sendStatus(401)
+        
+        await questionService.acceptAnswer(answerId, answerUser)
+        res.status(200)
+        
+    } catch (error) {
+        console.error('Failed to fetch question:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+})
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {

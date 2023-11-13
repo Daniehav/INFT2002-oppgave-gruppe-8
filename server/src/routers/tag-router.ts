@@ -47,4 +47,31 @@ router.get('/question/:questionId', async (req, res) => {
     }
 })
 
+router.post('/edit/:questionId', async (req, res) => {
+    try {
+        const questionId = parseInt(req.params.questionId)
+        const {addedTags, removedTags} = req.body
+        const added = [...new Set(addedTags)] as number[]
+        const removed = [...new Set(removedTags)] as number[]
+        const add = new Promise<void>(async (resolve) => {
+            for (const t of added) {
+              await tagService.createQuestionTags(questionId, t);
+            }
+            resolve();
+        });
+          
+        const remove = new Promise<void>(async (resolve) => {
+            for (const t of removed) {
+              await tagService.deleteQuestionTags(questionId, t);
+            }
+            resolve();
+        });
+        await Promise.all([add, remove])
+        res.sendStatus(200)
+        
+    } catch (error) {
+        
+    }
+})
+
 export default router

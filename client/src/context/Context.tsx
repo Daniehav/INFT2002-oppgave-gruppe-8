@@ -59,8 +59,8 @@ export const ThemeProvider: React.FC<ProviderProps> = ({ children }) => {
 };
 
 type ProfileContextType = {
-  profile: Profile,
-  setProfile: React.Dispatch<React.SetStateAction<Profile>>
+  profile: Profile;
+  setProfile: React.Dispatch<React.SetStateAction<Profile>>;
 }
 
 export const ProfileContext = createContext<ProfileContextType>({} as ProfileContextType);
@@ -68,6 +68,7 @@ export const ProfileContext = createContext<ProfileContextType>({} as ProfileCon
 
 export const ProfileProvider: React.FC<ProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile>({} as Profile);
+
 
   return (
     <ProfileContext.Provider value={{ profile, setProfile }}>

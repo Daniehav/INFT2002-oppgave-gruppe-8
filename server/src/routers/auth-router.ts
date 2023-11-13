@@ -15,6 +15,12 @@ export type User = {
     salt: Buffer
 }
 
+//må ha egen class for dette siden passport mapper user_id til id når passport user lages
+export type UserPass = {
+  id: number;
+  username: string;
+}
+
 type LocalStrategyCallback = (err: Error | null, user?: User | false, info?: {message: string}) => void
 
 function isAuthenticated(req: any, res: Response, next: NextFunction) {
@@ -76,9 +82,9 @@ router.post('/logout', isAuthenticated, (req, res, next) => {
     });
   });
 
-passport.serializeUser((user: User, cb: (err: null | Error, user: User) => void) => {
+passport.serializeUser((user: User, cb: (err: null | Error, user: UserPass) => void) => {
     process.nextTick(() => {
-      cb(null, { user_id: user.user_id, username: user.username } as User);
+      cb(null, {id: user.user_id, username: user.username });
     });
   });
   
