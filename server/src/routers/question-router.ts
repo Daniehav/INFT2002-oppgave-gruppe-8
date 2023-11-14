@@ -1,6 +1,7 @@
-import express, {Response, NextFunction} from 'express'
+import express, {Request,Response, NextFunction} from 'express'
 import { questionService, authService, answerService } from '../service'
 import { UserPass } from './auth-router';
+import { isAuthenticated } from '../routerMiddlewares';
 
 export type Question = {
     question_id: number;
@@ -16,53 +17,48 @@ export type Question = {
 const router = express.Router()
 
 
-router.post('/', isAuthenticated, async (req : any, res) => {
+router.post('/',isAuthenticated, async (req: Request, res) => {
     try {
-        const user = await authService.getUser(req.session.passport.user.username);
-        const questionId = await questionService.createQuestion(user.user_id, req.body.title, req.body.body, req.body.tags);
+        const user = req.user as UserPass
+        const userId = user.id
+        
+        const questionId = await questionService.createQuestion(userId, req.body.title, req.body.body, req.body.tags);
+        
         res.status(201).send(questionId.toString());
-    } catch (error: unknown) {
-        if (error instanceof Error && error.message === 'User not found') {
-            return res.status(400).send('Invalid user ID');
-        }
-        res.status(500).send('Internal Server Error');
+    } catch (error) {
+        console.log(error);
+        
+        res.status(400).send('Internal Request');
     }
 });
 
-router.get('/:questionId', async (req : any, res) => {
+router.get('/:questionId', async (req: Request, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
         const question = await questionService.getQuestionById(questionId)
+        
         if (question) {
             res.status(200).json(question);
-        } else {
-            res.status(404).send('Question not found');
         }
         
     } catch (error) {
-        // console.error('Failed to fetch question:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(404).send('Question not found');
     }
 });
 
 router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
     try {
-        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
-        const questionId = parseInt(req.params.questionId, 10);
+        const userId = req.user.id
+        const questionId = parseInt(req.params.questionId);
         
         const fetchedQuestion = await questionService.getQuestionById(questionId);
 
-        if (!fetchedQuestion) {
-            return res.status(404).send('Question not found');
-        }
+        if(userId != fetchedQuestion.user_id) return;
 
-        const question = await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
-        res.status(200).json(question); 
+        await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
+        res.sendStatus(200); 
     } catch (error: unknown) {
-        if (error instanceof Error && error.message === 'User not found') {
-            return res.status(400).send('Invalid user ID');
-        }
-        res.status(500).send('Internal Server Error');
+        return res.sendStatus(404);
     }
 });
 
@@ -95,13 +91,13 @@ router.get('/profile/:userId', async (req,res) => {
 
 router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
-        const questionId = parseInt(req.params.questionId, 10);
+        const questionId = parseInt(req.params.questionId);
         
         if (isNaN(questionId)) {
             return res.status(400).send('Invalid question ID');
         }
         const question = await questionService.getQuestionById(questionId); // check if question exist
-        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
+        const userId = req.user.id
         await questionService.deleteQuestion(question.question_id, userId);
         res.status(204).send();
     } catch (error: unknown) {
@@ -177,10 +173,5 @@ router.put('/:questionId/accept/:answerId', async (req, res) => {
 
 })
 
-function isAuthenticated(req: any, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-        return next();
-      }
-}
 
 export default router

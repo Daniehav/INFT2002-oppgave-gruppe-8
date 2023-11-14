@@ -3,7 +3,7 @@ CREATE TABLE Users (
   username VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL,
   hashed_password blob NOT NULL,
-  salt VARCHAR(255) NOT NULL,
+  salt blob NOT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -95,4 +95,5 @@ CREATE TABLE UserVotes (
   FOREIGN KEY (user_id) REFERENCES Users(user_id),
   FOREIGN KEY (answer_id) REFERENCES Answers(answer_id)
 );
+
 
