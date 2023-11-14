@@ -4,7 +4,7 @@ import { profileService } from '../service'
 export type Profile = {
     id:  number,
     user_id: number,
-    profile_picture: Buffer,
+    profile_picture: Buffer | null,
     bio: string,
     level: number,
     points: number

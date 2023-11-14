@@ -1,14 +1,15 @@
 import express, {Response, NextFunction} from 'express'
 import { answerService, authService } from '../service'
 import { UserPass } from './auth-router'
+import { isAuthenticated } from '../routerMiddlewares'
 
 export type Answer = {
     answer_id:  number,
     question_id: number,
     user_id: number,
     answer: string,
-    upvotes: string,
-    downvotes: string,
+    upvotes: number,
+    downvotes: number,
     accepted: boolean
 }
 
@@ -151,10 +152,6 @@ router.post(':answerId/favorite', async(req, res) => {
 
 
 
-function isAuthenticated(req: any, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-        return next();
-      }
-}
+
 
 export default router

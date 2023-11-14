@@ -11,7 +11,7 @@ export type User = {
     user_id: number,
     email: string,
     username: string,
-    hashed_password: Buffer,
+    hashed_password: Buffer | null,
     salt: Buffer
 }
 
@@ -33,7 +33,7 @@ passport.use(new LocalStrategy(function verify(username: string, password: strin
     authService.getUser(username).then((user: User) => {
         crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', (err, hashedPassword) => {
             if (err) { return done(err); }
-            if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
+            if (!crypto.timingSafeEqual(user.hashed_password!, hashedPassword)) {
                 return done(null, false, { message: 'Incorrect username or password.' });
             }
             return done(null, user);
@@ -43,7 +43,7 @@ passport.use(new LocalStrategy(function verify(username: string, password: strin
     })
 }));
 
-router.post('/signup', (req: any, res, next) => {
+router.post('/signup', (req: Request, res, next) => {
     var salt = crypto.randomBytes(16);
     crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', (err, hashedPassword) => {
       if (err) return next(err);
