@@ -37,8 +37,9 @@ export function Searchbar() {
 
     return(
         <div className='wide-100 relative'>
+			{searchQuery.length > 0 && <div onClick={() => setSearchQuery('')} className='hide-onclick'></div>}
             <div className="suggestion-search bg-white wide-100">
-                <input className='search--input' type='text' onChange={handleSearchText} />
+                <input className='search--input' type='text' value={searchQuery} onChange={handleSearchText} />
                 {questions.length > 0 && searchQuery && <div className='search-results'>{suggestions}</div>}
             </div>
             <button className='search-button button bg-accent text-WHITE' onClick={handleSubmit}>search</button><br />

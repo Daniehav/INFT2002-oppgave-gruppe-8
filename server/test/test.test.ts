@@ -209,7 +209,7 @@ describe('Create questions (POST)', () => {
         
     });
     test('Create question (400 Invalid Requset)', (done) => {
-        axios.post('/questions', {user_id: 9, title: 'testspørsmål', body: 'kan jeg få et svar?', tags: [1]}).catch((err) => {
+        axios.post('/questions', {user_id: 9, title: 'testspørsmål', body: 'kan jeg få et svar?', tags: [1]}, {headers: {id: 9}}).catch((err) => {
             expect(err.response.status).toEqual(400);
             done();
         });

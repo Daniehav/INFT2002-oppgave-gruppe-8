@@ -252,7 +252,15 @@ class ProfileService {
     
     getProfile(userId: number) {
         return new Promise<Profile>((resolve, reject) => {
-            pool.query('SELECT * FROM UserProfiles WHERE user_id=?', [userId], (err, result: RowDataPacket[]) => {
+            pool.query('SELECT Users.username, UserProfiles.* FROM UserProfiles JOIN Users ON Users.user_id = UserProfiles.user_id WHERE UserProfiles.user_id=?', [userId], (err, result: RowDataPacket[]) => {
+                if (err) return reject(err);
+                resolve(result[0] as Profile)
+            });
+        })
+    }
+    getProfileByUsername(username: string) {
+        return new Promise<Profile>((resolve, reject) => {
+            pool.query('SELECT Users.username, UserProfiles.* FROM UserProfiles JOIN Users ON Users.user_id = UserProfiles.user_id WHERE Users.username =?', [username], (err, result: RowDataPacket[]) => {
                 if (err) return reject(err);
                 resolve(result[0] as Profile)
             });
@@ -581,7 +589,7 @@ class CommentService {
 
     editQuestion(commentId: number, body: string) {
         return new Promise<void>((resolve, reject) => {
-            pool.query('UPDATE QuestionComments SET body=? WHERE comment_id=?',[body, commentId], (err, res: RowDataPacket[]) => {
+            pool.query('UPDATE QuestionComments SET body=? WHERE comment_id=?',[body, commentId], (err, res: ResultSetHeader) => {
                 if(err) return reject(err)
                 resolve()
             })
@@ -597,18 +605,18 @@ class CommentService {
     }
 
     createQuestion(questionId: number, body: string, userId: number) {
-        return new Promise<void>((resolve, reject) => {
-            pool.query('INSERT INTO QuestionComments (body, question_id, user_id) VALUES (?, ?, ?)',[body, questionId, userId], (err, res) => {
+        return new Promise<number>((resolve, reject) => {
+            pool.query('INSERT INTO QuestionComments (body, question_id, user_id) VALUES (?, ?, ?)',[body, questionId, userId], (err, res: ResultSetHeader) => {
                 if(err) return reject(err)
-                resolve()
+                resolve(res.insertId)
             })
         })
     }
     createAnswer(answerId: number, body: string, userId: number) {
-        return new Promise<void>((resolve, reject) => {
-            pool.query('INSERT INTO AnswerComments (body, answer_id, user_id) VALUES (?, ?, ?)',[body, answerId, userId], (err, res) => {
+        return new Promise<number>((resolve, reject) => {
+            pool.query('INSERT INTO AnswerComments (body, answer_id, user_id) VALUES (?, ?, ?)',[body, answerId, userId], (err, res: ResultSetHeader) => {
                 if(err) return reject(err)
-                resolve()
+                resolve(res.insertId)
             })
         })
     }

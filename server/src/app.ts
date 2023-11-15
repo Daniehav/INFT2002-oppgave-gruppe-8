@@ -25,14 +25,13 @@ const options = {
 };
 
 
-// Serve client files
-
 app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: false,
     store: new MySQLStore(options, pool)
   }));
+  
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('session'));

@@ -5,7 +5,8 @@ export type Profile = {
     profile_picture: string,
     bio: string,
     level: number,
-    points: number
+    points: number,
+    username: string
 }
 
 export type Question = {

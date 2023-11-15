@@ -1,27 +1,31 @@
-import express, {Response, NextFunction} from 'express'
+import express, {Response, NextFunction, Request} from 'express'
 import { favoriteService } from '../service'
 import { UserPass } from './auth-router'
 
 
 const router = express.Router()
 
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/:userId', async (req, res) => {
     try {
-        const user = req.user as UserPass
-        if(!user) return
-        const answers = await favoriteService.getFavorites(user.id)
+        const userId = parseInt(req.params.userId)
+        const answers = await favoriteService.getFavorites(userId)
         res.status(200).json(answers)
     } catch (error) {
         res.status(500).send(error)
     }
 })
-router.get('/ids', isAuthenticated, async (req, res) => {
+router.get('/', isAuthenticated, async (req, res) => {
     try {
         const user = req.user as UserPass
-        if(!user) return
+        console.log(user);
+        if(!user) throw new Error("Not authenticated");
+        
+        
         const answers = await favoriteService.getFavoriteIds(user.id)
         res.status(200).json(answers)
     } catch (error) {
+        console.log(error);
+        
         res.status(500).send(error)
     }
 })
@@ -43,7 +47,7 @@ router.post('/:answerId', isAuthenticated, async (req, res) => {
     }
 })
 
-function isAuthenticated(req: any, res: Response, next: NextFunction) {
+function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (req.isAuthenticated()) {
         return next();
     }
