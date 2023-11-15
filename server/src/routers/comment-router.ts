@@ -48,11 +48,12 @@ router.post('/:parent/:parentId', isAuthenticated, async (req, res) => {
         
         if(!user.id || !isParent(parent) || !parentId || !body) throw new Error('Missing data')
         if(parent == 'question') {
-            await commentService.createQuestion(parentId,body,user.id)
+            const id = await commentService.createQuestion(parentId,body,user.id)
+            res.status(200).json(id)
         } else {
-            await commentService.createAnswer(parentId,body,user.id)
+            const id = await commentService.createAnswer(parentId,body,user.id)
+            res.status(200).json(id)
         }
-        res.sendStatus(200)
     } catch (error) {
         console.log(error);
         res.status(500).send(error)

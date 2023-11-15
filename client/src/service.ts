@@ -26,6 +26,9 @@ class ProfileService {
     update(userId: number, bio: string, pfp: string | null, displayName: string) {
         return axios.put<boolean>('/profile/'+ userId, {bio, pfp, displayName})
     }
+    getProfileByUsername(username: string) {
+      return axios.get<Profile>('/profile/u/' + username).then((response) => response.data);
+    }
 }
 
 class QuestionService {
@@ -34,6 +37,8 @@ class QuestionService {
     
     return axios.get<Question>('/questions/' + id).then((response) => response.data);
   }
+  
+ 
 
   getQuestionsUser(userId: number) {
     return axios.get<Question[]>('/questions/profile/'+ userId).then(response => response.data)
@@ -87,9 +92,6 @@ class AnswerService {
   vote(answerId: number, vote: 'upvote' | 'downvote') {
     return axios.post('/answers/'+ answerId+'/vote', {vote}).then(response => response.data)
   }
-  favorite(answerId: number) {
-    return axios.post('/ans')
-  }
 }
 
 
@@ -98,7 +100,7 @@ class CommentService {
     return axios.get<QuestionComment[] | AnswerComment[]>(`/comments/${parent}/${parentId}`).then((response) => response.data);
   }
   create(parent: string, parentId: number, body: string) {
-    return axios.post<void>(`/comments/${parent}/${parentId}`,{body}).then(response => response.data)
+    return axios.post<number>(`/comments/${parent}/${parentId}`,{body}).then(response => response.data)
   }
   edit(commentId: number,parent: string,body: string) {
     return axios.put(`/comments/${parent}/${commentId}`, {body}).then((response) => response.data);
@@ -127,14 +129,14 @@ class TagService {
 }
 
 class FavoriteService {
-  getFavorites() {
-    return axios.get('/favorites').then(response => response.data)
+  getFavorites(userId: number) {
+    return axios.get<Answer[]>('/favorites/'+userId).then(response => response.data)
   }
   getFavoriteIds() {
-    return axios.get('/favorites/ids').then(response => response.data)
+    return axios.get<number[]>('/favorites').then(response => response.data)
   }
   setFavorite(answerId: number){
-    return axios.post('/favorites/'+answerId).then(response => response.data)
+    return axios.post<void>('/favorites/'+answerId).then(response => response.data)
   }
 }
 

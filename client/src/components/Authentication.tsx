@@ -96,7 +96,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
             <div className='flex-vert align-start'>
                 <h3 className='text-accent'>Complete your profile</h3>
                 <div className='row'>
-                    <UploadImage show={true} uploadImage={setProfilePicture} />
+                    <UploadImage uploadImage={setProfilePicture} />
                     <img className='pfp pfp-l' src={profilePicture? profilePicture : defaultPfp} alt="" />
                 </div>
                 <div className="row">

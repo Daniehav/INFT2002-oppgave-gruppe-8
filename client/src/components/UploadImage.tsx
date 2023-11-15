@@ -1,9 +1,12 @@
-import React, {createRef} from 'react'
+import React, {createRef, useContext} from 'react'
 import {ImageCompressor} from 'image-compressor'
+import { ProfileContext } from '../context/Context'
 
-function UploadImage({uploadImage, show}: {show: boolean,uploadImage: React.Dispatch<React.SetStateAction<string | null>>}) {
+function UploadImage({uploadImage}: {uploadImage: React.Dispatch<React.SetStateAction<string | null>>}) {
 
     const fileInputRef = createRef<HTMLInputElement>()
+
+    const {profile, setProfile} = useContext(ProfileContext)
 
     const selectImage =( e: React.ChangeEvent<HTMLInputElement>) => {
         if(!e.target.files) return
@@ -14,19 +17,22 @@ function UploadImage({uploadImage, show}: {show: boolean,uploadImage: React.Disp
             const imageCompressor = new ImageCompressor;
     
             const compressorSettings = {
-                toWidth : 200,
-                toHeight : 200,
+                toWidth : 100,
+                toHeight : 100,
                 mimeType : 'image/png',
-                mode : 'strict',
-                quality : 0.6,
-                threshold : 127,
-                speed : 'low'
+                quality: 0.1,
             };
     
             imageCompressor.run(reader.result, compressorSettings, (compressedImageData: any) => {
                 console.log(compressedImageData);
                 
                 uploadImage(compressedImageData);
+                setProfile(prev => {
+                    return {
+                        ...prev,
+                        profile_picture: compressedImageData
+                    }
+                })
 
             });
 
@@ -35,7 +41,7 @@ function UploadImage({uploadImage, show}: {show: boolean,uploadImage: React.Disp
     
     
     return ( 
-        <div className={`${!show? 'vis-hide' : ''}`}> 
+        <div> 
             <input
                 type="file"
                 accept='image/*'
@@ -43,7 +49,7 @@ function UploadImage({uploadImage, show}: {show: boolean,uploadImage: React.Disp
                 onChange={selectImage}
                 ref={fileInputRef}
             />
-            <button className='button bg-accent'  onClick={() => fileInputRef.current?.click()}>Upload Image</button>
+            <button className='button bg-accent text-WHITE'  onClick={() => fileInputRef.current?.click()}>Upload Image</button>
         </div> 
     );
 }
