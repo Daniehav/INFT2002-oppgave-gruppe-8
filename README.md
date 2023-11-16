@@ -50,6 +50,9 @@ cd client
 npm install
 npm start
 ```
+
+You can now navigate to http://localhost:3000/ in a web browswer to see the QA Platform application
+
 ## Tests:
 
 The following section describes running tests.
