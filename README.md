@@ -25,7 +25,6 @@ process.env.MYSQL_PASSWORD = 'username_todo';
 process.env.MYSQL_DATABASE = 'username_todo_test';
 ```
 
-
 ## Prerequisites
 
 To run the application you need Node.js with npm installed
@@ -34,9 +33,9 @@ To run the application you need Node.js with npm installed
 
 Do the following to run the QA platform
 
-### Start server
+### Start server and client
 
-Install dependencies and start server:
+In one terminal do the following install dependencies and to start the server:
 
 ```sh
 cd server
@@ -44,24 +43,31 @@ npm install
 npm start
 ```
 
-### Run server tests:
-
-```sh
-npm test
-```
-
-### Bundle client files to be served through server
-
-Install dependencies and bundle client files:
+In one terminal do the following to start the client:
 
 ```sh
 cd client
 npm install
 npm start
 ```
+## Tests:
+
+The following section describes running tests.
+
+### Run server tests
+
+Run the following in a terminal to run server tests:
+
+```sh
+cd server
+npm test
+```
 
 ### Run client tests:
 
+Run the following in a terminal to run client tests:
+
 ```sh
+cd client
 npm test
 ```
