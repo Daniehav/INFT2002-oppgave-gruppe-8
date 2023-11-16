@@ -31,11 +31,11 @@ To run the application you need Node.js with npm installed
 
 ## Run the application
 
-Do the following to run the QA platform
+Do the following to run the QA platform application
 
-### Start server and client
+### Start the server and the client
 
-In one terminal do the following install dependencies and to start the server:
+In one terminal run the following to install dependencies and to start the server:
 
 ```sh
 cd server
