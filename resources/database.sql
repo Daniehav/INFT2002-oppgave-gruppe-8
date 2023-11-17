@@ -13,8 +13,8 @@ CREATE TABLE UserProfiles (
   user_id INT,
   bio TEXT,
   profile_picture VARCHAR(255),
-  link VARCHAR(255),
   display_name VARCHAR(20),
+  poinst INT NOT NULL DEFAULT 0,
   FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
