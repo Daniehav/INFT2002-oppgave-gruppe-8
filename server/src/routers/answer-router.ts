@@ -44,11 +44,11 @@ router.post('/', isAuthenticated, async (req : any, res) => {
 router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
     try {
         const answerId = parseInt(req.params.answerId);
-        const question = await answerService.getAnswerById(answerId);
-        if (question) {
-            res.status(200).json(question);
+        const answer = await answerService.getAnswerById(answerId);
+        if (answer) {
+            res.status(200).json(answer);
         } else {
-            res.status(404).send('Question not found');
+            res.status(404).send('Answer not found');
         }
     } catch (error) {
         console.error('Failed to fetch question:', error);

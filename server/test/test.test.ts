@@ -54,7 +54,6 @@ const testProfiles: Profile[] = [
     {id: 2, user_id: 2, profile_picture: null, bio: '', level: 1, points: 0},
     {id: 3, user_id: 3, profile_picture: null, bio: '', level: 1, points: 0},
 ];
-// testComments, testQuestionTags, testFavorites, testUserVotes må legges til og defineres
 
 
 const truncateQuery = `
@@ -88,32 +87,29 @@ beforeEach((done) => {
                     await axios.post('/auth/signup',{username: user.username, password: user.password, email: user.email})
                 }
             }
-        await createUsers()
-        const createQuestions = async () => {
-            for (const question of testQuestions) {
-              await questionService.createQuestion(question.user_id, question.title, question.body, question.tags);
-            }
-        };
-        await createQuestions()
-        
-        const createAnswers = async () => {
-            for (const answer of testAnswers) {
-                await answerService.createAnswer(answer.user_id, answer.question_id, answer.answer);
-            }
-        };
-        await createAnswers()
-        pool.query('SET FOREIGN_KEY_CHECKS = 1;',(err) => {
-            if(err) return done(err)
-            done()
-        })
-
-        
-    });
+            await createUsers()
+            const createQuestions = async () => {
+                for (const question of testQuestions) {
+                    await questionService.createQuestion(question.user_id, question.title, question.body, question.tags);
+                }
+            };
+            await createQuestions()
+            const createAnswers = async () => {
+                for (const answer of testAnswers) {
+                    await answerService.createAnswer(answer.user_id, answer.question_id, answer.answer);
+                }
+            };
+            await createAnswers()
+            pool.query('SET FOREIGN_KEY_CHECKS = 1;',(err) => {
+                if(err) return done(err)
+                done()
+            });   
+        });
     } catch (error) {
         console.log(error);
-        
     }
 });
+
 
 afterAll((done) => {
     if (!webServer) return done(new Error());
@@ -260,10 +256,64 @@ describe('Update questions (PUT)', () => {
     });
 });
 describe('Fetch answers (GET)', () => {
-
+    test.skip('Fetch all answers by question_id (200 OK)', (done) => {
+        axios.get('/answers/question/1').then((res) => {
+            expect(res.status).toEqual(200);
+            expect(res.data).toEqual([testAnswers[0], testAnswers[1]]);
+            done();
+        });
+    });
+    test.skip('Fetch answer by answer_id (200 OK)', (done) => {
+        axios.get('/answers/2').then((res) => {
+            expect(res.status).toEqual(200);
+            expect(res.data).toEqual(testAnswers[1]);
+            done();
+        });
+    });
+    test.skip('Fetch all answers by question_id (500 Internal Server Error)', (done) => {
+        axios.get('/answers/question/a').then((res) => {
+            expect(res.status).toEqual(500);
+            expect(res.data).toEqual('Internal Server Error');
+            done();
+        });
+    });
+    test.skip('Fetch answer by answer_id (404 Answer Not Found)', (done) => {
+        axios.get('/answers/9').then((res) => {
+            expect(res.status).toEqual(404);
+            expect(res.data).toEqual('Answer Not Found');
+            done();
+        });
+    });
+    test.skip('Fetch answer by answer_id (500 Internal Server Error)', (done) => {
+        axios.get('/answers/a').then((res) => {
+            expect(res.status).toEqual(500);
+            expect(res.data).toEqual('Internal Server Error');
+            done();
+        });
+    });
 });
 describe('Create answer (POST)', () => {
-
+    test.skip('Create answer (201 OK)', (done) => {
+        axios.post('/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+            expect(res.status).toEqual(201);
+            expect(res.data).toEqual({userId: 1, questionId: 1, answer: 'jeg er usikker'});
+            done();
+        });
+    });
+    test.skip('Create answer (400 Invalid user ID)', (done) => {
+        axios.post('/', {userId: 1, questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+            expect(res.status).toEqual(400);
+            expect(res.data).toEqual('Invalid user ID');
+            done();
+        });
+    });
+    test.skip('Create answer (500 Internal Server Error)', (done) => {
+        axios.post('/', {answer: 'jeg er usikker'}).then((res) => {
+            expect(res.status).toEqual(500);
+            expect(res.data).toEqual('Internal Server Error');
+            done();
+        });
+    });
 });
 describe('Delete answer (DELETE)', () => {
 
