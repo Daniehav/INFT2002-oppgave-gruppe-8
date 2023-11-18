@@ -321,6 +321,8 @@ class AnswerService {
                     return reject(err);
                 }
 
+                console.log(results);
+                
                 resolve(results as Answer[]);
             });
         });

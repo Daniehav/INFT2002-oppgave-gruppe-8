@@ -66,7 +66,7 @@ class QuestionService {
     return axios.put('/questions/'+ questionId, {title, body}).then((response) => response.data.id);
   }
   delete(id: number) {
-    return axios.delete('/questionsR/' + id).then((response) => response.data.id);
+    return axios.delete('/questions/' + id).then((response) => response.data.id);
   }
   accept(questionId: number, answerId: number, userId: number) {
     return axios.put(`/questions/${questionId}/accept/${answerId}`,{userId}).then(response => response.data)

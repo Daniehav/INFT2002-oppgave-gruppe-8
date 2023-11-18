@@ -282,15 +282,20 @@ input{
     margin:0;
 }
 
+.searchbar{
+    position: relative;
+    top: -1rem;
+}
+
+
 .suggestion-search{
+    z-index: 4;
     position: absolute;
     border: 1px solid var(--grey);
     border-radius: 1rem;
 }
 
-.search-button {
-    margin-left: 30%;
-}
+
 
 .search--input{
     background: none;
@@ -512,6 +517,7 @@ input{
 .hide-onclick{
     position: absolute;
     top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
     z-index: 3;
@@ -533,6 +539,8 @@ input{
     transform-origin:top;
     transform: scaleY(1);
     transition: transform 100ms;
+    z-index: 4;
+
 }
 
 .user-menu--hide{

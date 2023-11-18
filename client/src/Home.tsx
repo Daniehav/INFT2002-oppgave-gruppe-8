@@ -91,35 +91,34 @@ function Preview({filter}:{filter: 'popular' | 'recent' | 'unanswered'}) {
 
 export function Tags() {
     const [allTags, setAllTags] = useState<Tag[]>([])
-    const [newTag, setNewTag] = useState('')
+    const [tagSearch, setTagSearch] = useState('')
 
 
     
     useEffect(() => {
         fetchTags()
     }, []);
-    
-    const tags = allTags.sort((a,b) => b.count - a.count).map((t,i) => (
-        <Link to={'/questions/filter/tag/'+t.name} key={i} className='tag fs-3'>{t.name} <span className='fs-5'>{t.count}</span></Link>
-    ))
 
-    const createTag = async () => {
-        if(!newTag) return
-        const tagId = await tagService.create(newTag)
-        setNewTag('')
-        fetchTags()
-        
-    }
+    const regexPattern = tagSearch
+        .replace(/\s+/g, '\\s*')
+        .split('')
+        .join('\\s*');
+    const filter = new RegExp(regexPattern, 'i');
+    
+    const tags = allTags.filter( t => filter.test(t.name)).sort((a,b) => b.count - a.count).map((t,i) => (
+        <Link to={'/question/filter/tag/'+t.name} key={i} className='tag fs-3'>{t.name} <span className='fs-5'>{t.count}</span></Link>
+    ))
 
     const fetchTags = async () => {
         const tags = await tagService.getAll()
         setAllTags(tags)
     }
+
+    
     return(
-        <div className='card bg-white card--wide'>
+        <div className='card bg-white wide-100'>
             <div className="row">
-                <input className='input' value={newTag} onChange={(e) => setNewTag(e.currentTarget.value)} type="text" />
-                <button className='button bg-accent text-white' onClick={createTag}>Create tag</button>
+                <input className='input' value={tagSearch} onChange={(e) => setTagSearch(e.currentTarget.value)} type="text" />
             </div>
             <h3>All tags</h3>
             <div className='tags'>

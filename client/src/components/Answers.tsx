@@ -46,7 +46,7 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
 
     useEffect(() => {
         const fetch = async() => {
-            if(question.question_id) return
+            if(!question.question_id) return
             try {
                 const favorites = await favoriteService.getFavoriteIds()
                 setFavorites(favorites)
@@ -76,9 +76,8 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
     }
     const favoriteAnswer = async(answer: Answer) => {
         if(answer.user_id == profile.user_id) return;
-       
-        await favoriteService.setFavorite(answer.answer_id)
         setFavorites(prev => [...prev, answer.answer_id])
+        const id = await favoriteService.setFavorite(answer.answer_id)
     }
 
     const vote = async (answer: Answer, vote: 'upvote' | 'downvote') => {
@@ -96,10 +95,14 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
         await answerService.vote(answer.answer_id, vote)
     }
 
+    const removeAnswer = (answer: Answer) => {
+        setAnswers(prev => prev.filter(a => a.answer_id != answer.answer_id))
+    }
+
     const answersElements = answers.map((answer, i) => {
         const isFavorite = favorites.includes(answer.answer_id)
         return <div key={i} className='wide-75'>
-            <AnswerDetails answer={answer} question={question} accept={acceptAnswer} vote={vote} favoriteAnswer={favoriteAnswer} isFavorite={isFavorite} />
+            <AnswerDetails answer={answer} question={question} accept={acceptAnswer} vote={vote} favoriteAnswer={favoriteAnswer} isFavorite={isFavorite} removeAnswer={removeAnswer}/>
         </div>
     })
 
@@ -130,10 +133,11 @@ type AnswerDetailsProps = {
     vote: (answer: Answer, vote: 'upvote' | 'downvote') => void,
     accept: (answer: Answer) => void,
     favoriteAnswer: (answer: Answer) => void,
-    isFavorite: boolean
+    isFavorite: boolean,
+    removeAnswer: (answer: Answer) => void
 }
 
-function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavorite}: AnswerDetailsProps) {
+function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavorite, removeAnswer}: AnswerDetailsProps) {
 
     const {profile} = useContext(ProfileContext)
     const [showCreateAnswerComment, setShowCreateComment] = useState<number | false>(false)
@@ -166,6 +170,7 @@ function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavori
             }
         }))
     } 
+    //removes from state to update component
     const deleteComment = (commentId: number) => {
         if(!commentId) return
         setComments(prev => prev.filter((c) => c.comment_id != commentId)) 
@@ -178,6 +183,7 @@ function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavori
     const favoriteIcon = isFavorite? favorited : favorite
 
     const deleteAnswer = async (answerId: number) => {
+        removeAnswer(answer)
         await answerService.delete(answerId)
         navigate('/question/'+ question.question_id)
     }
@@ -259,7 +265,7 @@ export function EditAnswer() {
     const edit =async () => {
         if(!answer.body) return
         await answerService.edit(answer);
-        navigate('/question'+ id)
+        navigate('/question/'+ id)
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

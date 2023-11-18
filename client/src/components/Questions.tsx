@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {questionService, answerService, tagService, commentService, profileService, favoriteService} from '../service'
 import { Question, Answer, Tag, QuestionComment, Profile, AnswerComment} from '../types'
 import { useParams, Link } from 'react-router-dom';
@@ -16,6 +16,7 @@ export function QuestionDetails() {
     const location = useLocation()
     const id = parseInt(params.id as string)
     const noOutlet = !location.pathname.includes('answer')
+    const navigate = useNavigate()
 
     const {profile} =  useContext(ProfileContext)
     const [question, setQuestion] = useState<Question>({} as Question)
@@ -40,6 +41,7 @@ export function QuestionDetails() {
 
     const deleteQuestion = async () => {
         await questionService.delete(question.question_id)
+        navigate('/')
     }
 
     const addComment = (comment: string, commentId: number) => {
@@ -85,11 +87,11 @@ export function QuestionDetails() {
             </div>
             <p className='fs-4 text-body'>{question.body}</p>
         </div>
-        <div className='card bg-white wide-75'>
-            <p className="fs-3">Comments</p>
+        {noOutlet && <div className='card bg-white wide-75'>
+            <p className="fs-4">{comments.length == 0 && 0} Comments</p>
             <Comments comments={comments} editComment={editComment} removeComment={deleteComment} parent={'question'} />
 
-        </div>
+        </div>}
 
         <div className="wide-75">
             {showCreateComment && <CreateComment parent={'question'} parentId={question.question_id} addComment={addComment} show={setShowCreateComment}/>}
@@ -188,7 +190,7 @@ export function CreateQuestion() {
             const questionId = await questionService.create(profile.user_id, title, body, tagIds)
             navigate('/question/' + questionId)
         } catch (error) {
-            
+            console.log(error);
         }
     }
 

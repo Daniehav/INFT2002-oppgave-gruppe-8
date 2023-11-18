@@ -27,23 +27,27 @@ export function Searchbar() {
         return () => cancelToken.cancel();
     }, [searchQuery])
     
-    function handleSearchText(e: React.ChangeEvent<HTMLInputElement>){
+    const handleSearchText = (e: React.ChangeEvent<HTMLInputElement>) =>{
 	    setSearchQuery(e.target.value)
     }
-    function handleSubmit(){
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if(e.key != 'Enter') return
 	    navigate('/question/search/'+searchQuery+'/results');
+        setSearchQuery('')
     }
-    const suggestions = questions.slice(0,10).map((question, i) => <div className='wide-100 search-result' key={i} onClick={() => navigate('/question/'+question.question_id)}>{question.title}</div>)
+
+    const suggestions = questions.slice(0,10).map((question, i) => <div className='wide-100 search-result' key={i} onClick={() => {setSearchQuery('');navigate('/question/'+question.question_id)}}>{question.title}</div>)
 
     return(
-        <div className='wide-100 relative'>
+        <>
 			{searchQuery.length > 0 && <div onClick={() => setSearchQuery('')} className='hide-onclick'></div>}
-            <div className="suggestion-search bg-white wide-100">
-                <input className='search--input' type='text' value={searchQuery} onChange={handleSearchText} />
-                {questions.length > 0 && searchQuery && <div className='search-results'>{suggestions}</div>}
+            <div className='wide-100 searchbar'>
+                <div className="suggestion-search bg-white wide-100">
+                    <input className='search--input' type='text' value={searchQuery} onKeyDown={handleKeyPress} onChange={handleSearchText} />
+                    {questions.length > 0 && searchQuery && <div className='search-results'>{suggestions}</div>}
+                </div>
             </div>
-            <button className='search-button button bg-accent text-WHITE' onClick={handleSubmit}>search</button><br />
-        </div>
+        </>
     )
 }
 
