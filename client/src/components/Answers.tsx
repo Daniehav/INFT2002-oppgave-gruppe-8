@@ -46,7 +46,7 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
 
     useEffect(() => {
         const fetch = async() => {
-            if(question.question_id) return
+            if(!question.question_id) return
             try {
                 const favorites = await favoriteService.getFavoriteIds()
                 setFavorites(favorites)
