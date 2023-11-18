@@ -38,7 +38,7 @@ jobs:
       # Server test needs vpn connection so therefore they are not run
       # run: npm test
     - name: Test Server
-      run: node -e "console.log('Server test needs vpn connection so therefore they are not run)"
+      run: node -e "console.log('Server test needs vpn connection so therefore they are not run')"
       working-directory: ./server
 
     # Install and test client
