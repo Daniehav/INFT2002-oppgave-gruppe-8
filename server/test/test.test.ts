@@ -24,15 +24,19 @@ const testQuestions: TestQuestion[] = [
     {question_id:  4, user_id: 1, title: 'regne ut antall epler', body: 'hvis jeg har tre epler, og jeg får to til, hvor mange epler har jeg da?', views: 0, created_at: new Date(), updated_at: new Date(),tags:[3]},
 ];
 const testTags: Tag[] = [
-    {tag_id: 1, tag: 'matte', count: 1, created_at: new Date, updated_at: new Date},
-    {tag_id: 2, tag: 'alfabet', count: 0, created_at: new Date, updated_at: new Date},
-    {tag_id: 3, tag: 'mat', count: 0, created_at: new Date, updated_at: new Date},
+    {tag_id: 1, tag: 'matte', count: 1, created_at: new Date(), updated_at: new Date()},
+    {tag_id: 2, tag: 'alfabet', count: 0, created_at: new Date(), updated_at: new Date()},
+    {tag_id: 3, tag: 'mat', count: 0, created_at: new Date(), updated_at: new Date()},
 ];
+/*
+'2023-11-18T13:13:13', '2023-11-19T15:13:13'
+'2023-11-18T09:24:00', '2023-11-18T09:24:00'
+*/
 const testAnswers: Answer[] = [
-    {answer_id: 1, question_id: 1, user_id: 1, answer: 'l', upvotes: 0, downvotes: 0, accepted: false},
-    {answer_id: 2, question_id: 1, user_id: 2, answer: 'b', upvotes: 0, downvotes: 0, accepted: true},
-    {answer_id: 3, question_id: 3, user_id: 1, answer: 'fluesopp er ikke spiselig, oppsøk legevakta øyeblikkelig', upvotes: 0, downvotes: 0, accepted: true},
-    {answer_id: 4, question_id: 2, user_id: 3, answer: '22', upvotes: 0, downvotes: 0, accepted: false},
+    {answer_id: 1, question_id: 1, user_id: 1, body: 'l', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
+    {answer_id: 2, question_id: 1, user_id: 2, body: 'b', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
+    {answer_id: 3, question_id: 3, user_id: 1, body: 'fluesopp er ikke spiselig, oppsøk legevakta øyeblikkelig', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
+    {answer_id: 4, question_id: 2, user_id: 3, body: '22', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
 ];
 
 function hashPassword(salt: Buffer, password: string) {
@@ -96,7 +100,7 @@ beforeEach((done) => {
             await createQuestions()
             const createAnswers = async () => {
                 for (const answer of testAnswers) {
-                    await answerService.createAnswer(answer.user_id, answer.question_id, answer.answer);
+                    await answerService.createAnswer(answer.user_id, answer.question_id, answer.body);
                 }
             };
             await createAnswers()
@@ -256,17 +260,19 @@ describe('Update questions (PUT)', () => {
     });
 });
 describe('Fetch answers (GET)', () => {
-    test.skip('Fetch all answers by question_id (200 OK)', (done) => {
+    //tester ikke hele objekter, fordi datoen vil ikke være like (datoene i databasen blir satt senere enn i test objektene)
+    test('Fetch all answers by question_id (200 OK)', (done) => {
         axios.get('/answers/question/1').then((res) => {
             expect(res.status).toEqual(200);
-            expect(res.data).toEqual([testAnswers[0], testAnswers[1]]);
+            expect(res.data[0].answer_id).toEqual(testAnswers[0].answer_id);
+            expect(res.data[1].answer_id).toEqual(testAnswers[1].answer_id)
             done();
         });
     });
-    test.skip('Fetch answer by answer_id (200 OK)', (done) => {
+    test('Fetch answer by answer_id (200 OK)', (done) => {
         axios.get('/answers/2').then((res) => {
             expect(res.status).toEqual(200);
-            expect(res.data).toEqual(testAnswers[1]);
+            expect(res.data.answer_id).toEqual(testAnswers[1].answer_id);
             done();
         });
     });
@@ -293,15 +299,15 @@ describe('Fetch answers (GET)', () => {
     });
 });
 describe('Create answer (POST)', () => {
-    test.skip('Create answer (201 OK)', (done) => {
-        axios.post('/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+    test('Create answer (201 OK)', (done) => {
+        axios.post('answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
             expect(res.status).toEqual(201);
-            expect(res.data).toEqual({userId: 1, questionId: 1, answer: 'jeg er usikker'});
+            expect(res.data).toEqual(5);
             done();
         });
     });
     test.skip('Create answer (400 Invalid user ID)', (done) => {
-        axios.post('/', {userId: 1, questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+        axios.post('answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
             expect(res.status).toEqual(400);
             expect(res.data).toEqual('Invalid user ID');
             done();
@@ -316,7 +322,26 @@ describe('Create answer (POST)', () => {
     });
 });
 describe('Delete answer (DELETE)', () => {
-
+    test.skip('Delete answer (204 OK)', (done) => {
+        axios.delete('/answers/4').then((res) => {
+            expect(res.status).toEqual(204);
+            done();
+        });
+    });
+    test.skip('Delete answer (400 Invalid answer ID)', (done) => {
+        axios.delete('/answers/a').then((res) => {
+            expect(res.status).toEqual(400);
+            expect(res.data).toEqual('Invalid answer ID');
+            done();
+        });
+    });
+    test.skip('Delete answer (404 Answer not found)', (done) => {
+        axios.delete('/answers/9').then((res) => {
+            expect(res.status).toEqual(404);
+            expect(res.data).toEqual('Answer not found');
+            done();
+        });
+    });
 });
 describe('Edit answer (PUT)', () => {
 

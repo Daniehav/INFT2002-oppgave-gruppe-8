@@ -4,13 +4,16 @@ import { UserPass } from './auth-router'
 import { isAuthenticated } from '../routerMiddlewares'
 
 export type Answer = {
-    answer_id:  number,
-    question_id: number,
-    user_id: number,
-    answer: string,
-    upvotes: number,
-    downvotes: number,
-    accepted: boolean
+    answer_id: number;
+    question_id: number;
+    user_id: number;
+    body: string;
+    upvotes: number;
+    downvotes: number;
+    accepted: boolean;
+    created_at: Date;
+    updated_at: Date;
+    question_title?: string;
 }
 
 export type Vote = {
@@ -94,15 +97,15 @@ router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
         const answerId = parseInt(req.params.answerId, 10);
 
         if (isNaN(answerId)) {
-            return res.status(400).send('Invalid question ID');
+            return res.status(400).send('Invalid answer ID');
         }
         const answer = await answerService.getAnswerById(answerId); // check if answer exist
         const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
         await answerService.deleteAnswer(answer.answer_id, userId);
         res.status(204).send();
     } catch (error: unknown) {
-        if (error instanceof Error && error.message === 'No question found') {
-            res.status(404).send("Question not found");
+        if (error instanceof Error && error.message === 'No answer found') {
+            res.status(404).send("Answer not found");
         }
         else if (error instanceof Error) {
             res.status(500).send('Internal Server Error');
