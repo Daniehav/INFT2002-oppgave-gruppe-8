@@ -322,20 +322,20 @@ describe('Create answer (POST)', () => {
     });
 });
 describe('Delete answer (DELETE)', () => {
-    test.skip('Delete answer (204 OK)', (done) => {
+    test('Delete answer (204 OK)', (done) => {
         axios.delete('/answers/4').then((res) => {
             expect(res.status).toEqual(204);
             done();
         });
     });
-    test.skip('Delete answer (400 Invalid answer ID)', (done) => {
+    test('Delete answer (400 Invalid answer ID)', (done) => {
         axios.delete('/answers/a').then((res) => {
             expect(res.status).toEqual(400);
             expect(res.data).toEqual('Invalid answer ID');
             done();
         });
     });
-    test.skip('Delete answer (404 Answer not found)', (done) => {
+    test('Delete answer (404 Answer not found)', (done) => {
         axios.delete('/answers/9').then((res) => {
             expect(res.status).toEqual(404);
             expect(res.data).toEqual('Answer not found');
