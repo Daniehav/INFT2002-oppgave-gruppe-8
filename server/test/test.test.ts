@@ -166,7 +166,6 @@ describe('Fetch questions (GET)', () => {
             done();
         });
     });
-    // feiltester
     test('Fetch question by question_id (404 not found)', (done) => {
         axios.get('/questions/5').then((res) => {
             done()
@@ -214,17 +213,10 @@ describe('Create questions (POST)', () => {
             done();
         });
     });
-    test.skip('Create question (500 Internal Server Error)', (done) => {
-        axios.post('/', {user_id: 9, body: 'et tittel obligatorisk?', tags: [1]}).then((res) => {
-            expect(res.status).toEqual(500);
-            expect(res.data).toEqual('Internal Server Error');
-            done();
-        });
-    });
 });
 describe('Delete questions (DELETE)', () => {
-    test('Delete question (200 OK)', (done) => {
-        axios.delete('/questions/4').then((res) => {
+    test('Delete question (204 OK)', (done) => {
+        axios.delete('/questions/4', {}).then((res) => {
             expect(res.status).toEqual(204);
             done();
         })
@@ -245,16 +237,8 @@ describe('Update questions (PUT)', () => {
         });
     });
     test('Edit question (404 Question not found)', (done) => {
-        axios.put('/questions/7', {question_id: 7, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}, {headers: {id: 3}}).catch((res) => {
-            expect(res.response.status).toEqual(404);
-            done();
-        });
-    });
-        
-    test.skip('Edit question (500 Internal Server Error)', (done) => {
-        axios.put('/questions/1', {question_id: 1, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}).then((res) => {
-            expect(res.status).toEqual(500);
-            expect(res.data).toEqual('Internal Server Error');
+        axios.put('/questions/7', {question_id: 7, user_id: 3, title: 'hvilken bokstav kommer etter a i alfabetet?', body: 'jeg prøver å lære meg en viss sang, men har glemt teksten'}, {headers: {id: 3}}).catch((err) => {
+            expect(err.response.status).toEqual(404);
             done();
         });
     });
@@ -276,88 +260,50 @@ describe('Fetch answers (GET)', () => {
             done();
         });
     });
-    test.skip('Fetch all answers by question_id (500 Internal Server Error)', (done) => {
-        axios.get('/answers/question/a').then((res) => {
-            expect(res.status).toEqual(500);
-            expect(res.data).toEqual('Internal Server Error');
-            done();
-        });
-    });
-    test.skip('Fetch answer by answer_id (404 Answer Not Found)', (done) => {
-        axios.get('/answers/9').then((res) => {
-            expect(res.status).toEqual(404);
-            expect(res.data).toEqual('Answer Not Found');
-            done();
-        });
-    });
-    test.skip('Fetch answer by answer_id (500 Internal Server Error)', (done) => {
-        axios.get('/answers/a').then((res) => {
-            expect(res.status).toEqual(500);
-            expect(res.data).toEqual('Internal Server Error');
-            done();
-        });
-    });
 });
 describe('Create answer (POST)', () => {
     test('Create answer (201 OK)', (done) => {
-        axios.post('answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+        axios.post('/answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
             expect(res.status).toEqual(201);
             expect(res.data).toEqual(5);
-            done();
-        });
-    });
-    test.skip('Create answer (400 Invalid user ID)', (done) => {
-        axios.post('answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
-            expect(res.status).toEqual(400);
-            expect(res.data).toEqual('Invalid user ID');
-            done();
-        });
-    });
-    test.skip('Create answer (500 Internal Server Error)', (done) => {
-        axios.post('/', {answer: 'jeg er usikker'}).then((res) => {
-            expect(res.status).toEqual(500);
-            expect(res.data).toEqual('Internal Server Error');
             done();
         });
     });
 });
 describe('Delete answer (DELETE)', () => {
     test('Delete answer (204 OK)', (done) => {
-        axios.delete('/answers/4').then((res) => {
+        axios.delete('/answers/4', {headers: {id: 3}}).then((res) => {
             expect(res.status).toEqual(204);
             done();
         });
     });
     test('Delete answer (400 Invalid answer ID)', (done) => {
-        axios.delete('/answers/a').then((res) => {
-            expect(res.status).toEqual(400);
-            expect(res.data).toEqual('Invalid answer ID');
+        axios.delete('/answers/a').catch((err) => {
+            expect(err.response.status).toEqual(400);
+            expect(err.response.data).toEqual('Invalid answer ID');
             done();
         });
     });
     test('Delete answer (404 Answer not found)', (done) => {
-        axios.delete('/answers/9').then((res) => {
-            expect(res.status).toEqual(404);
-            expect(res.data).toEqual('Answer not found');
+        axios.delete('/answers/9').catch((err) => {
+            expect(err.response.status).toEqual(404);
+            expect(err.response.data).toEqual('Answer not found');
             done();
         });
     });
 });
 describe('Edit answer (PUT)', () => {
-
-});
-describe('Fetch tags (GET)', () => {
-
-});
-describe('Create tag (POST)', () => {
-
-});
-describe('Create and authorize user (GET, POST)', () => {
-
-});
-describe('Fetch user (GET)', () => {
-
-});
-describe('Update user (PUT)', () => {
-
+    test('Edit answer (200 OK)', (done) => {
+        axios.put('/answers/1', {body: 'f'}, {headers: {id: 1}}).then((res) => {
+            expect(res.status).toEqual(200);
+            done();
+        });
+    });
+    test('Edit answer (404 Answer not found)', (done) => {
+        axios.put('/answers/8', {body: 'f'}, {headers: {id: 1}}).catch((err) => {
+            expect(err.response.status).toEqual(404);
+            expect(err.response.data).toEqual('Answer not found');
+            done();
+        });
+    });
 });

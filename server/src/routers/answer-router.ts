@@ -91,11 +91,17 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
         if (error instanceof Error && error.message === 'User not found') {
             return res.status(400).send('Invalid user ID');
         }
+        if(error instanceof Error && error.message === 'No answer found') {
+            return res.status(404).send('Answer not found');
+        }
         res.status(500).send('Internal Server Error');
     }
 });
 
+<<<<<<< Updated upstream
 // Delete an answer
+=======
+>>>>>>> Stashed changes
 router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
     try {
         const answerId = parseInt(req.params.answerId, 10);
@@ -104,7 +110,7 @@ router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
             return res.status(400).send('Invalid answer ID');
         }
         const answer = await answerService.getAnswerById(answerId); // check if answer exist
-        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
+        const userId = req.user.id;
         await answerService.deleteAnswer(answer.answer_id, userId);
         res.status(204).send();
     } catch (error: unknown) {

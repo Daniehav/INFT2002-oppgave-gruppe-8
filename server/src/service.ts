@@ -342,7 +342,7 @@ class AnswerService {
                 }
 
                 if (res.length === 0) {
-                    return reject(new Error('No answer found with this ID for the user'));
+                    return reject(new Error('No answer found'));
                 }
     
                 const updateQuery = 'UPDATE Answers SET body = ? WHERE answer_id = ? AND user_id = ?';
