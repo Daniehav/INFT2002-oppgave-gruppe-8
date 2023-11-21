@@ -7,6 +7,8 @@ import { Answer, Vote, Favorite } from './routers/answer-router';
 import { Tag } from './routers/tag-router'
 import { QuestionComment, AnswerComment } from './routers/comment-router';
 
+
+// All database calls related to authentification
 class AuthService {
     createUser(username: string, email: string, hashedPassword: Buffer, salt: Buffer) {
         return new Promise<User>((resolve, reject) => {
@@ -49,7 +51,7 @@ class AuthService {
     }
 }
 
-
+// All database calla related to questions
 class QuestionService {
     createQuestion(userId: number, title: string, body: string, tags: number[]) {
         return new Promise<number>((resolve, reject) => {
@@ -229,6 +231,7 @@ class QuestionService {
     }
 }
 
+// All database calls related to user profiles
 class ProfileService {
 
     createProfile(userId: number, username: string) {
@@ -277,7 +280,7 @@ class ProfileService {
     }
 }
 
-
+// All database calls related to answers
 class AnswerService {
     createAnswer(userId: number, questionId: number, body: string) {
         return new Promise<number>((resolve, reject) => {
@@ -446,6 +449,7 @@ class AnswerService {
 
 }
 
+// All database calls related to tags
 class TagService {
     getAll(){
         return new Promise<Tag[]>((resolve, reject) => {
@@ -502,6 +506,7 @@ class TagService {
     }
 }
 
+// ALl database calls related to favorites
 class FavoriteService{
     setFavorite(answerId: number, userId: number) {
         return new Promise<void>((resolve, reject) => {
@@ -554,6 +559,7 @@ class FavoriteService{
     }
 }
 
+// All database calls related to comments
 class CommentService {
     getQuestion(commentId: number) {
         return new Promise<QuestionComment>((resolve, reject) => {

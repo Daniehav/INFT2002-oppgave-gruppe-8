@@ -16,7 +16,7 @@ export type Question = {
 
 const router = express.Router()
 
-
+// Check if user is authenticated
 router.post('/',isAuthenticated, async (req: Request, res) => {
     try {
         const user = req.user as UserPass
@@ -32,6 +32,7 @@ router.post('/',isAuthenticated, async (req: Request, res) => {
     }
 });
 
+// Get a question
 router.get('/:questionId', async (req: Request, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -46,6 +47,7 @@ router.get('/:questionId', async (req: Request, res) => {
     }
 });
 
+// Update a question
 router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
     try {
         const userId = req.user.id
@@ -62,6 +64,7 @@ router.put('/:questionId', isAuthenticated, async (req : any, res : Response) =>
     }
 });
 
+// Get all questions
 router.get('/', isAuthenticated, async (req: any, res: Response) => {
     try {
         const questions = await questionService.getAllQuestions();
@@ -72,6 +75,7 @@ router.get('/', isAuthenticated, async (req: any, res: Response) => {
     }
 });
 
+// Get all questions created by a specific user
 router.get('/profile/:userId', async (req,res) => {
     try {
         const questionId = parseInt(req.params.userId);
@@ -89,6 +93,7 @@ router.get('/profile/:userId', async (req,res) => {
     }
 })
 
+// Delete a specific question
 router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -110,12 +115,14 @@ router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     }
 });
 
+// Search for a specific question
 router.get('/search/:query', (req, res) => {
     const query = req.params.query;
 
     questionService.search(query).then((questions: Question[]) => res.send(questions)).catch((err) => res.status(500).send(err))
 });
 
+// Get a some questions based upon a filter
 router.get('/preview/:filter', async(req, res) => {
     try {
         const {filter} = req.params

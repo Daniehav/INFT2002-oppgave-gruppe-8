@@ -31,6 +31,7 @@ export type Favorite = {
 
 const router = express.Router()
 
+// Create a question
 router.post('/', isAuthenticated, async (req : any, res) => {
     try {
         const user = req.user
@@ -44,6 +45,7 @@ router.post('/', isAuthenticated, async (req : any, res) => {
     }
 });
 
+// Get a specific answer
 router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
     try {
         const answerId = parseInt(req.params.answerId);
@@ -59,6 +61,7 @@ router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
     }
 });
 
+// Get all answers for a question
 router.get('/question/:questionId', isAuthenticated, async (req: any, res: Response) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -70,6 +73,7 @@ router.get('/question/:questionId', isAuthenticated, async (req: any, res: Respo
     }
 });
 
+// Update an answer
 router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
     try {
         const userId = req.user.id
@@ -91,7 +95,7 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
     }
 });
 
-
+// Delete an answer
 router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
     try {
         const answerId = parseInt(req.params.answerId, 10);

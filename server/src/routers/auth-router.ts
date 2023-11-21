@@ -43,6 +43,7 @@ passport.use(new LocalStrategy(function verify(username: string, password: strin
     })
 }));
 
+// Login a user based upon passport library
 router.post('/signup', (req: Request, res, next) => {
     var salt = crypto.randomBytes(16);
     crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', (err, hashedPassword) => {
@@ -62,12 +63,13 @@ router.post('/signup', (req: Request, res, next) => {
    
     });
 
+// Sign in a user
 router.post('/signin', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login'
 }));
 
-
+// Get if user is autentificated
 router.get('/authenticated', isAuthenticated ,(req, res) => {
     const user = req.user as any
     if(!user) return res.sendStatus(404)

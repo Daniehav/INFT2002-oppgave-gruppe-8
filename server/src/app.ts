@@ -31,7 +31,8 @@ app.use(session({
     saveUninitialized: false,
     store: new MySQLStore(options, pool)
   }));
-  
+
+// used for authentification
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('session'));
