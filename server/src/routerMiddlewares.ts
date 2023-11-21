@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
+// Function which checks if the user is authentificated
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     
     if(process.env.NODE_ENV == 'test'){
