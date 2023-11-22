@@ -4,7 +4,7 @@ import { MemoryHistory, createMemoryHistory } from 'history';
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-import {ProfileContext, ThemeContext} from '../src/context/Context'
+import {AuthContext, ProfileContext, ThemeContext} from '../src/context/Context'
 import { Profile, Question, Tag, Answer, QuestionComment, AnswerComment } from '../src/types';
 import { answerService, commentService, favoriteService, questionService, tagService } from '../src/service';
 import { CreateQuestion, QuestionDetails } from '../src/components/Questions';
@@ -54,14 +54,15 @@ jest.mock('react-router-dom', () => ({
 
 const customRender = (children: React.ReactNode, profile: Profile, history: MemoryHistory) => {
     const setProfile = jest.fn()
-    let isDark = false
-    const toggleTheme = jest.fn().mockImplementation(() => isDark = !isDark)
+    const isAuthenticated = true
+    const setIsAuthenticated = jest.fn()
+    const logOut = jest.fn()
     return render(
         <Router location={history.location} navigator={history}>
             <ProfileContext.Provider value={{profile, setProfile}}>
-                <ThemeContext.Provider value={{isDark, toggleTheme}}>
+                <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated, logOut}}>
                     {children}
-                </ThemeContext.Provider>
+                </AuthContext.Provider>
             </ProfileContext.Provider>
         </Router>
     )
