@@ -18,7 +18,7 @@ jobs:
       MYSQL_HOST: 'mysql.stud.ntnu.no'
       MYSQL_USER: 'daniehav_qa'
       MYSQL_PASSWORD: 'qa'
-      MYSQL_DATABASE: 'daniehav_qa_dev'
+      MYSQL_DATABASE: 'daniehav_qa_test'
 
     steps:
     - uses: actions/checkout@v3
