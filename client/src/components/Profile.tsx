@@ -106,7 +106,7 @@ function ProfileComponent({profile, isYour}: {profile: Profile | null, isYour: b
 }
 
 export function ProfileEdit() {
-    const {profile} = useContext(ProfileContext)
+    const {profile, setProfile} = useContext(ProfileContext)
     const [profilePicture, setProfilePicture] = useState<string | null>(null)
     const [nameEdit, setNameEdit] = useState('')
     const [bioText, setBioText] = useState('')
@@ -123,6 +123,14 @@ export function ProfileEdit() {
         try {
             if(!profile.user_id) return
             await profileService.update(profile.user_id, bioText, profilePicture, nameEdit)
+            setProfile(prev => {
+                return{
+                    ...prev,
+                    bio: bioText,
+                    profile_picture: profilePicture,
+                    display_name: nameEdit
+                }
+            })
             navigate('/profile')
         } catch (error) {
             navigate('/profile')
