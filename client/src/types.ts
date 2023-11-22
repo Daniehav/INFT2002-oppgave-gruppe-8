@@ -2,7 +2,7 @@ export type Profile = {
     display_name: string,
     id:  number,
     user_id: number,
-    profile_picture: string,
+    profile_picture: string | null,
     bio: string,
     level: number,
     points: number,

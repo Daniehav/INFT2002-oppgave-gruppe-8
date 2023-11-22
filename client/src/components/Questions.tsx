@@ -18,7 +18,7 @@ export function QuestionDetails() {
     const noOutlet = !location.pathname.includes('answer')
     const navigate = useNavigate()
 
-    const {profile} =  useContext(ProfileContext)
+    const {profile} = useContext(ProfileContext)
     const [question, setQuestion] = useState<Question>({} as Question)
     const [questionTags, setQuestionTags] = useState<Tag[]>([])
     const [comments, setComments] = useState<QuestionComment[]>([])
@@ -70,6 +70,9 @@ export function QuestionDetails() {
     const tagsElements = questionTags.map((tag, i) => <div key={i} className='tag fs-5'>{tag.name}</div>)
     if(!question.question_id) return <div></div>
 
+    console.log(profile.user_id);
+    
+
     return <div className='question-page'>
         <div className="wide-75 card bg-white">
             <div className='question-header'>
@@ -82,7 +85,7 @@ export function QuestionDetails() {
                     <p className='fs-5'>Modified {formatDate(question.updated_at)}</p>
                     <p className='fs-5'>Viewed {question.views} {question.views == 1? 'time' : 'times'}</p>
                     <div className='tags'>{tagsElements}</div>
-                    {profile.user_id == question.user_id &&<><Link className='button bg-light-grey text-black fs-4' to={`/question/${question.question_id}/edit`}>Edit</Link>
+                    {profile.user_id == question.user_id && <> <Link className='button bg-light-grey text-black fs-4' to={`/question/${question.question_id}/edit`}>Edit</Link>
                     <button className='button bg-light-grey text-black fs-4' onClick={deleteQuestion}>Delete</button></>}
                 </div>
             </div>

@@ -52,6 +52,17 @@ jest.mock('react-router-dom', () => ({
     useParams: jest.fn(),
 }))
 
+const defaultProfile: Profile = {
+    display_name: "",
+    id: 0,
+    user_id: 0,
+    profile_picture: null, // Replace with an actual default picture URL
+    bio: "",
+    level: 0,
+    points: 0,
+    username: "",
+  };
+
 const customRender = (children: React.ReactNode, profile: Profile, history: MemoryHistory) => {
     const setProfile = jest.fn()
     const isAuthenticated = true
@@ -68,6 +79,55 @@ const customRender = (children: React.ReactNode, profile: Profile, history: Memo
     )
 }
 
+// Mock implementations for QuestionService
+jest.mock('../src/service', () => ({
+    questionService: {
+      get: jest.fn(),
+      delete: jest.fn(),
+      create: jest.fn(),
+      search: jest.fn(),
+      getQuestionTags: jest.fn(),
+      getQuestionsUser: jest.fn(),
+      getPreview: jest.fn(),
+      getFilter: jest.fn(),
+      getTagFilter: jest.fn(),
+      edit: jest.fn(),
+      accept: jest.fn(),
+    },
+    favoriteService: {
+        getFavorites: jest.fn(),
+        getFavoriteIds: jest.fn(),
+        setFavorite: jest.fn(),
+    },
+    answerService: {
+        get: jest.fn(),
+        getAll: jest.fn(),
+        create: jest.fn(),
+        edit: jest.fn(),
+        delete: jest.fn(),
+        vote: jest.fn(),
+    },
+    commentService: {
+        get: jest.fn(),
+        create: jest.fn(),
+        edit: jest.fn(),
+        delete: jest.fn(),
+    },
+    tagService: {
+        getAll: jest.fn(),
+        create: jest.fn(),
+        getQuestionTags: jest.fn(),
+        editQuestionTags: jest.fn(),
+    },
+    profileService: {
+        get: jest.fn().mockImplementation(() => Promise.resolve(defaultProfile)),
+        update: jest.fn(),
+        getProfileByUsername: jest.fn(),
+    }
+    
+  }));
+  
+
 
 const useParamsMock = jest.spyOn(require('react-router-dom'), 'useParams');
 
@@ -78,10 +138,18 @@ const searchMock = jest.spyOn(questionService, 'search')
 const getQuestionTagsMock = jest.spyOn(tagService, 'getQuestionTags')
 const getAnswersMock = jest.spyOn(answerService, 'getAll')
 const getCommentsMock = jest.spyOn(commentService, 'get')
-const getFavoritesMock = jest.spyOn(favoriteService, 'getFavorites')
+const getFavoritesMock = jest.spyOn(favoriteService, 'getFavoriteIds')
 const voteAnswerMock = jest.spyOn(answerService,'vote')
 const acceptAnswerMock = jest.spyOn(questionService,'accept')
 const getAllTagsMock = jest.spyOn(tagService, 'getAll')
+
+getCommentsMock.mockImplementation(() => Promise.resolve([]))
+getFavoritesMock.mockImplementation(() => Promise.resolve([]))
+deleteQuestionMock.mockImplementation(() => Promise.resolve())
+voteAnswerMock.mockImplementation(() => Promise.resolve())
+acceptAnswerMock.mockImplementation(() => Promise.resolve())
+
+
 
 
 describe('Question components tests', () => {
@@ -89,6 +157,10 @@ describe('Question components tests', () => {
         useParamsMock.mockReturnValue({ id: 1 });
         const history = createMemoryHistory()
         getQuestionMock.mockImplementation(() => Promise.resolve(testQuestions[0]))
+        const answers = testAnswers.filter(a => a.question_id == 1)
+        getAnswersMock.mockImplementation(() => Promise.resolve(answers))
+
+
         const questionTags = testQuestions[0].tags.map(i => testTags[i-1])
         getQuestionTagsMock.mockImplementation(() => Promise.resolve(questionTags))
         const profile = {user_id: 1}
@@ -106,6 +178,10 @@ describe('Question components tests', () => {
     test('Render only what question creator has permission to', async() => {
         useParamsMock.mockReturnValue({ id: 1 });
         const history = createMemoryHistory()
+        const answers = testAnswers.filter(a => a.question_id == 1)
+        getAnswersMock.mockImplementation(() => Promise.resolve(answers))
+
+
         const { findByText } = customRender(<QuestionDetails />, {user_id: 3} as Profile, history)
         await findByText('Edit')
         await findByText('Delete')
@@ -117,8 +193,12 @@ describe('Question components tests', () => {
         useParamsMock.mockReturnValue({id:4})
         const history = createMemoryHistory()
         history.push('/question/4')
+
+        const answers = testAnswers.filter(a => a.question_id == 4)
+        getAnswersMock.mockImplementation(() => Promise.resolve(answers))
+
+
         getQuestionMock.mockImplementation(() => Promise.resolve(testQuestions[3]))
-        deleteQuestionMock.mockImplementation(() => Promise.resolve())
         const { findByText } = customRender(<QuestionDetails />, {user_id: 1} as Profile, history)
         const user = userEvent.setup()
         expect(history.location.pathname).toBe('/question/4')
@@ -173,7 +253,7 @@ describe('Question components tests', () => {
         await user.click(matteOption)
         expect(title).toHaveValue('Hva er 1+1')
         expect(body).toHaveValue('ikke noe mer å legge til')
-        await findByText('matte', {className: 'fs-3 tag-option'})
+        await findByText('matte', {classname: 'tag-option'})
         await user.click(getByText('Post'))
         expect(history.location.pathname).toBe('/question/5')
 
@@ -184,9 +264,10 @@ describe('Answer components tests', () => {
     test('AnswerDetails renders correctly', async () => {
         useParamsMock.mockReturnValue({ id: 1 });
         const history = createMemoryHistory()
+
         const { findByText } = customRender(<AnswerDetails question={testQuestions[0]} answer={testAnswers[0]} vote={jest.fn()} accept={jest.fn()} favoriteAnswer={jest.fn()} isFavorite={false} removeAnswer={jest.fn()} />, {user_id: 1} as Profile, history)
         await findByText(testAnswers[0].body)
-        await findByText(testAnswers[0].upvotes - testAnswers[0].downvotes, {className: 'fs-3 vote-count'})
+        await findByText(testAnswers[0].upvotes - testAnswers[0].downvotes, {selector: '.vote-count'})
     })
     
     test('Answers count is correct', async () => {
@@ -194,7 +275,7 @@ describe('Answer components tests', () => {
         const history = createMemoryHistory()
         const answers = testAnswers.filter(a => a.question_id == 1)
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
-        getFavoritesMock.mockImplementation(() => Promise.resolve([]))
+
         const { findByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 1} as Profile, history)
         await findByText('2 answers')
         await findByText(answers[0].body)
@@ -205,8 +286,7 @@ describe('Answer components tests', () => {
         const history = createMemoryHistory()
         const answers = testAnswers.filter(a => a.question_id == 1)
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
-        getFavoritesMock.mockImplementation(() => Promise.resolve([]))
-        voteAnswerMock.mockImplementation(() => Promise.resolve())
+
         const user = userEvent.setup()
 
         const { findByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 2} as Profile, history)
@@ -214,7 +294,7 @@ describe('Answer components tests', () => {
         await findByText(answers[0].body)
         const upvoteButton = screen.getAllByAltText('upvote')[0]
         await user.click(upvoteButton)
-        await findByText(score + 1, {className: 'fs-3 vote-count'})
+        await findByText(score + 1, {selector: '.vote-count'})
     })
 
     test('Downvoting answer decrements score', async() => {
@@ -222,8 +302,7 @@ describe('Answer components tests', () => {
         const history = createMemoryHistory()
         const answers = testAnswers.filter(a => a.question_id == 1)
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
-        getFavoritesMock.mockImplementation(() => Promise.resolve([]))
-        voteAnswerMock.mockImplementation(() => Promise.resolve())
+
         const user = userEvent.setup()
 
         const { findByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 2} as Profile, history)
@@ -231,15 +310,14 @@ describe('Answer components tests', () => {
         await findByText(answers[0].body)
         const upvoteButton = screen.getAllByAltText('downvote')[0]
         await user.click(upvoteButton)
-        await findByText(score - 1, {className: 'fs-3 vote-count'})
+        await findByText(score - 1, {selector: '.vote-count'})
     })
     test('Accepting answer marks it as accepted', async() => {
         useParamsMock.mockReturnValue({id: 1})
         const history = createMemoryHistory()
         const answers = testAnswers.filter(a => a.question_id == 1)
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
-        getFavoritesMock.mockImplementation(() => Promise.resolve([]))
-        acceptAnswerMock.mockImplementation(() => Promise.resolve())
+
         const user = userEvent.setup()
 
         const { findByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 3} as Profile, history)
@@ -255,6 +333,8 @@ describe('Answer components tests', () => {
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
         getFavoritesMock.mockImplementation(() => Promise.resolve([]))
         acceptAnswerMock.mockImplementation(() => Promise.resolve())
+        getCommentsMock.mockImplementation(() => Promise.resolve([]))
+
         const user = userEvent.setup()
 
         const { findByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 2} as Profile, history)
@@ -269,19 +349,18 @@ describe('Answer components tests', () => {
         const history = createMemoryHistory()
         const answers = testAnswers.filter(a => a.question_id == 1)
         getAnswersMock.mockImplementation(() => Promise.resolve(answers))
-        getFavoritesMock.mockImplementation(() => Promise.resolve([]))
         const user = userEvent.setup()
     
         const { findByText, findByAltText, findAllByText } = customRender(<Answers question={testQuestions[0]} setShowCreateComment={jest.fn()} />, {user_id: 2} as Profile, history)
         const sort = await findByText('Sort by score')
         user.click(sort)
-        const answerScoresDesc = await findAllByText(/^\d+$/,{className:'fs-3 vote-count', exact: false})
+        const answerScoresDesc = await findAllByText(/^\d+$/,{selector:'.vote-count', exact: false})
         const firstDesc = parseInt(answerScoresDesc[0].textContent)        
         const secondDesc = parseInt(answerScoresDesc[1].textContent)        
         expect(secondDesc).toBeLessThan(firstDesc)
         const desc = await findByAltText('desc')
         await user.click(desc)
-        const answerScoresAsc = await findAllByText(/^\d+$/,{className:'fs-3 vote-count', exact: false})
+        const answerScoresAsc = await findAllByText(/^\d+$/,{selector:'.vote-count', exact: false})
         const firstAsc = parseInt(answerScoresAsc[0].textContent)        
         const secondAsc = parseInt(answerScoresAsc[1].textContent)        
         expect(desc).toHaveAttribute('alt','asc')

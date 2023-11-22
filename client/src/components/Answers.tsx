@@ -65,7 +65,6 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
                 sortAnswers(answers, true)
                 const favorites = await favoriteService.getFavoriteIds()
                 setFavorites(favorites)
-                setDescending(true)
             } catch (error) {
                 console.error(error);
             }
