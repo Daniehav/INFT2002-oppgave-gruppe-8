@@ -1,4 +1,4 @@
-import express, {Response, NextFunction} from 'express'
+import express, {Request, Response, NextFunction} from 'express'
 import { answerService, authService } from '../service'
 import { UserPass } from './auth-router'
 import { isAuthenticated } from '../routerMiddlewares'
@@ -35,7 +35,7 @@ const router = express.Router()
 router.post('/', isAuthenticated, async (req : any, res) => {
     try {
         const user = req.user
-        const question = await answerService.createAnswer(user.id, req.body.questionId ,req.body.answer);
+        const question = await answerService.createAnswer(user.id, req.body.questionId ,req.body.body);
         res.status(201).json(question);
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -44,6 +44,7 @@ router.post('/', isAuthenticated, async (req : any, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Get a specific answer
 router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
@@ -61,6 +62,7 @@ router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
     }
 });
 
+
 // Get all answers for a question
 router.get('/question/:questionId', isAuthenticated, async (req: any, res: Response) => {
     try {
@@ -72,6 +74,7 @@ router.get('/question/:questionId', isAuthenticated, async (req: any, res: Respo
         res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Update an answer
 router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
@@ -98,20 +101,18 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
     }
 });
 
-<<<<<<< Updated upstream
 // Delete an answer
-=======
->>>>>>> Stashed changes
-router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
+router.delete('/:answerId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
+
     try {
         const answerId = parseInt(req.params.answerId, 10);
+        const user = req.user as UserPass
 
         if (isNaN(answerId)) {
             return res.status(400).send('Invalid answer ID');
         }
         const answer = await answerService.getAnswerById(answerId); // check if answer exist
-        const userId = req.user.id;
-        await answerService.deleteAnswer(answer.answer_id, userId);
+        await answerService.deleteAnswer(answer.answer_id, user.id);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No answer found') {
@@ -123,7 +124,7 @@ router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
     }
 });
 
-router.post('/:answerId/vote', async(req, res) => {
+router.post('/:answerId/vote', isAuthenticated, async(req, res) => {
     try {
         
         const answerId = parseInt(req.params.answerId)
@@ -146,11 +147,13 @@ router.post('/:answerId/vote', async(req, res) => {
         }
         
     } catch (error) {
+        console.log(error);
+        
         res.status(500).send(error)
     }
 
 })
-router.post(':answerId/favorite', async(req, res) => {
+router.post(':answerId/favorite',isAuthenticated, async(req, res) => {
     const answerId = parseInt(req.params.answerId)
     const user = req.user as UserPass
     const favorite = await answerService.getFavorite(answerId, user.id)
@@ -162,6 +165,22 @@ router.post(':answerId/favorite', async(req, res) => {
         res.status(200).json(id)
     }
 })
+
+
+async function isAuthorized(req: Request, res: Response, next: NextFunction) {
+    const answerId = parseInt(req.params.answerId)
+    const answer = await answerService.getAnswerById(answerId)
+        
+    const user = req.user as UserPass
+    
+    if (answer.user_id == user.id) {
+        console.log('authorized');
+        
+        return next();
+    } else {
+        throw new Error('Not authorized')
+    }
+}
 
 
 

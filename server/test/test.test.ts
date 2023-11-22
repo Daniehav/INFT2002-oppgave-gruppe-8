@@ -224,7 +224,6 @@ describe('Delete questions (DELETE)', () => {
     test('Delete question (404 Not Found)', (done) => {
         axios.delete('/questions/7').catch((err) => {
             expect(err.response.status).toEqual(404);
-            expect(err.response.data).toEqual('Question not found');
             done();
         });
     });

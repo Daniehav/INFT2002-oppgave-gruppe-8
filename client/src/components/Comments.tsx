@@ -17,8 +17,6 @@ export function Comments({comments, removeComment, editComment, parent}: {commen
     }
 
     const commentElements = comments.map((c,i) => {
-        console.log(profile);
-        
         const postedComment = c.user_id == profile.user_id
         const edit = c.comment_id == showEdit
         return (

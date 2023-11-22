@@ -11,6 +11,7 @@ export function Searchbar() {
     const navigate = useNavigate();
     
     useEffect(() => {
+        
         setQuestions([])
         if(!searchQuery) return
         const cancelToken = axios.CancelToken.source()
@@ -31,7 +32,9 @@ export function Searchbar() {
 	    setSearchQuery(e.target.value)
     }
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        
         if(e.key != 'Enter') return
+        
 	    navigate('/question/search/'+searchQuery+'/results');
         setSearchQuery('')
     }
@@ -43,7 +46,7 @@ export function Searchbar() {
 			{searchQuery.length > 0 && <div onClick={() => setSearchQuery('')} className='hide-onclick'></div>}
             <div className='wide-100 searchbar'>
                 <div className="suggestion-search bg-white wide-100">
-                    <input className='search--input' type='text' value={searchQuery} onKeyDown={handleKeyPress} onChange={handleSearchText} />
+                    <input aria-label='search' className='search--input' type='text' value={searchQuery} onKeyDown={handleKeyPress} onChange={handleSearchText} />
                     {questions.length > 0 && searchQuery && <div className='search-results'>{suggestions}</div>}
                 </div>
             </div>

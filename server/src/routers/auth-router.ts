@@ -77,7 +77,6 @@ router.get('/authenticated', isAuthenticated ,(req, res) => {
 })
 
 router.post('/logout', isAuthenticated, (req, res, next) => {
-    //@ts-ignore
     req.logout((err) => {
       if (err) { return next(err); }
       res.send()

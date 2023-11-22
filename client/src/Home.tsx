@@ -32,12 +32,12 @@ export default function Home() {
                 <Link className='button bg-light-grey' to={'/tags'}>All tags</Link>
             </header>
             {noOutlet && <>
-                <div className='flex wide-100 row align-start'>
+                <div className='flex wide-100 row align-start gap-3'>
                     <Preview filter={'popular'} />
                     <Preview filter={'recent'} />
                     <Preview filter={'unanswered'} />
                 </div>
-                <div className='card bg-white'>
+                <div className='card bg-white wide-75'>
                     <p onClick={() => navigate('/tags')} className='fs-3'>Tags</p>
                     <div className="tags">
                         {tags}
@@ -118,7 +118,7 @@ export function Tags() {
     return(
         <div className='card bg-white wide-100'>
             <div className="row">
-                <input className='input' value={tagSearch} onChange={(e) => setTagSearch(e.currentTarget.value)} type="text" />
+                <input className='input' aria-label='tag-input' value={tagSearch} onChange={(e) => setTagSearch(e.currentTarget.value)} type="text" />
             </div>
             <h3>All tags</h3>
             <div className='tags'>
