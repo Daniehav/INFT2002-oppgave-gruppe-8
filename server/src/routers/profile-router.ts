@@ -1,5 +1,7 @@
-import express, {Response, NextFunction} from 'express'
+import express, {Request,Response, NextFunction} from 'express'
 import { profileService } from '../service'
+import { UserPass } from './auth-router'
+import { isAuthenticated } from '../routerMiddlewares'
 
 export type Profile = {
     id:  number,
@@ -12,13 +14,13 @@ export type Profile = {
 
 const router = express.Router()
 
-router.put('/:id', isAuthenticated, (req: any, res) => {
-    const id = parseInt(req.params.id)
-    profileService.updateProfile(id, req.body.bio, req.body.pfp, req.body.displayName)
+router.put('/:id', isAuthenticated, (req: Request, res: Response) => {
+    const user = req.user as UserPass
+    profileService.updateProfile(user.id, req.body.bio, req.body.pfp, req.body.displayName)
     res.status(200).send()
 }) 
 
-router.get('/:id', isAuthenticated, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id)
         
@@ -33,7 +35,7 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     }
 })
 
-router.get('/u/:username', isAuthenticated, async (req, res) => {
+router.get('/u/:username', async (req, res) => {
     try {
         const username = req.params.username
         
@@ -46,12 +48,6 @@ router.get('/u/:username', isAuthenticated, async (req, res) => {
         res.sendStatus(404)
     }
 })
-
-function isAuthenticated(req: any, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-}
 
 
 export default router

@@ -4,6 +4,7 @@ import UploadImage from './UploadImage'
 import defaultPfp from '../assets/default-pfp.png'
 import { authService, profileService } from '../service'
 import { AuthContext, ProfileContext } from '../context/Context'
+import { Profile } from '../types'
 
 function AuthenticationPage() {
     
@@ -59,9 +60,8 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
         .then((userId) => {
             setProfile(prev => {
                 return {
-                    ...prev,
                     user_id: userId
-                }
+                } as Profile
             })
             setIsAuthenticated(true)
             setSignedUp(true)
@@ -80,9 +80,9 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
     
 
     return(
-        <div className="card bg-white auth--card">
+        <>
             {!signedUp ?
-            <>
+             <div className="card bg-white auth--card">
                 <h3 className="text-accent">Sign up</h3>
                 <form onSubmit={signUp}>
                     <FormInput label="Username" type="text" name="username" onChange={handleChange} value={username} />
@@ -91,9 +91,9 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
                     <FormInput label="Confirm Password" type="password" name="confirmPassword" onChange={handleChange} value={confirmPassword} />
                     <button type="submit" className="auth-button fs-4">Sign Up</button>
                 </form>
-            </>
+            </div>
             :
-            <div className='flex-vert align-start'>
+            <div className='flex-vert align-start card bg-white gap-05'>
                 <h3 className='text-accent'>Complete your profile</h3>
                 <div className='row'>
                     <UploadImage uploadImage={setProfilePicture} />
@@ -104,13 +104,13 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
                     <input value={displayName} onChange={e => setDisplayName(e.currentTarget.value)} type="text" className="input" />
                 </div>
                 <p className='fs-3 text-accent'>Bio</p>
-                <textarea className='bio' value={bioText} onChange={e => setBioText(e.currentTarget.value)} cols={30} rows={5} maxLength={150}></textarea>
+                <textarea className='textarea' value={bioText} onChange={e => setBioText(e.currentTarget.value)} cols={30} rows={5} maxLength={150}></textarea>
                 <div className="row align-center">
-                    <button className='button bg-light-grey' onClick={() => navigate('/')}>Later</button>
-                    <button className='button bg-accent' onClick={updateProfile}>Update</button>
+                    <button className='button bg-light-grey text-black' onClick={() => navigate('/')}>Later</button>
+                    <button className='button bg-accent text-WHITE' onClick={updateProfile}>Update</button>
                 </div>
             </div>}
-        </div>
+        </>
     )
 }
 
@@ -123,6 +123,7 @@ function SignInForm(){
     const navigate = useNavigate()
 
     const {setIsAuthenticated} = useContext(AuthContext)
+    const {setProfile} = useContext(ProfileContext)
 
 
     const [formFields,setFormFields] = useState(defaultFormFields)
@@ -133,14 +134,14 @@ function SignInForm(){
         setFormFields({...formFields,[name]: value})
     }
 
-    const signIn = (e: FormEvent<HTMLFormElement>) => {
+    const signIn = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if(!username || !password) return;
-        authService.signIn(username, password)
-        .then(() => {
-            setIsAuthenticated(true)
-            navigate('/')
-        })
+        await authService.signIn(username, password)
+        setIsAuthenticated(true)
+        const profile = await profileService.getProfileByUsername(username)
+        setProfile(profile)
+        navigate('/')
     }
    
 

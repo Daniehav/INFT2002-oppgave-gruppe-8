@@ -102,6 +102,10 @@ body, body *{
     align-items: center;
 }
 
+.gap-3{
+    gap: 3em
+}
+
 .gap-2{
     gap: 2em;
 }
@@ -196,6 +200,10 @@ body, body *{
 .table{
     width: 100%;
     border-spacing: 1rem;
+}
+
+.select-underline{
+    border-bottom: solid 2px var(--accent);
 }
 
 .underline-container{
@@ -344,8 +352,9 @@ input{
 }
 
 .tag{
+    vertical-align: middle;
     border-radius: 1rem;
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 0.8rem;
     background-color: var(--accent);
     color: var(--WHITE);
     display: flex;

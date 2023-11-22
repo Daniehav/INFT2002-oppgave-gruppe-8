@@ -195,7 +195,7 @@ class QuestionService {
         }
 
         if(preview) {
-            query += ' LIMIT 8'
+            query += ' LIMIT 3'
         }
         
 
@@ -403,7 +403,7 @@ class AnswerService {
     }
     updateVote(answerId: number, userId: number, vote: 'upvote' | 'downvote'): Promise<void> {
         return new Promise((resolve, reject) => {
-            pool.query('UPDATE UserVotes (vote) VALUES (?) WHERE answer_id=? AND user_id=?',[vote, answerId, userId], (err, res: ResultSetHeader) => {
+            pool.query('UPDATE UserVotes SET vote_type=? WHERE answer_id=? AND user_id=?',[vote, answerId, userId], (err, res: ResultSetHeader) => {
                 if(err) return reject(err)
                 profileService.increasePoints(userId, vote == 'upvote'? 1 : -1)
                 resolve()

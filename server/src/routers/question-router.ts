@@ -16,7 +16,7 @@ export type Question = {
 
 const router = express.Router()
 
-
+//post question
 router.post('/',isAuthenticated, async (req: Request, res) => {
     try {
         const user = req.user as UserPass
@@ -32,6 +32,7 @@ router.post('/',isAuthenticated, async (req: Request, res) => {
     }
 });
 
+//get question
 router.get('/:questionId', async (req: Request, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -46,15 +47,11 @@ router.get('/:questionId', async (req: Request, res) => {
     }
 });
 
-router.put('/:questionId', isAuthenticated, async (req : any, res : Response) => {
+//edit question
+router.put('/:questionId', [isAuthenticated, isAuthorized], async (req : any, res : Response) => {
     try {
         const userId = req.user.id
         const questionId = parseInt(req.params.questionId);
-        
-        const fetchedQuestion = await questionService.getQuestionById(questionId);
-
-        if(userId != fetchedQuestion.user_id) return;
-
         await questionService.updateQuestion(questionId, userId, req.body.title, req.body.body);
         res.sendStatus(200); 
     } catch (error: unknown) {
@@ -62,16 +59,8 @@ router.put('/:questionId', isAuthenticated, async (req : any, res : Response) =>
     }
 });
 
-router.get('/', isAuthenticated, async (req: any, res: Response) => {
-    try {
-        const questions = await questionService.getAllQuestions();
-        res.status(200).json(questions);
-    } catch (error) {
-        console.error('Failed to fetch questions:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
+//get questions of profile
 router.get('/profile/:userId', async (req,res) => {
     try {
         const questionId = parseInt(req.params.userId);
@@ -89,16 +78,17 @@ router.get('/profile/:userId', async (req,res) => {
     }
 })
 
-router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
+//delete questions
+router.delete('/:questionId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const questionId = parseInt(req.params.questionId);
+        const user = req.user as UserPass
         
         if (isNaN(questionId)) {
             return res.status(400).send('Invalid question ID');
         }
         const question = await questionService.getQuestionById(questionId); // check if question exist
-        const userId = req.user.id
-        await questionService.deleteQuestion(question.question_id, userId);
+        await questionService.deleteQuestion(question.question_id, user.id);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No question found') {
@@ -110,12 +100,16 @@ router.delete('/:questionId', isAuthenticated, async (req: any, res) => {
     }
 });
 
+
+//search for questions
 router.get('/search/:query', (req, res) => {
     const query = req.params.query;
 
     questionService.search(query).then((questions: Question[]) => res.send(questions)).catch((err) => res.status(500).send(err))
 });
 
+
+//get preview of filtered questions
 router.get('/preview/:filter', async(req, res) => {
     try {
         const {filter} = req.params
@@ -127,7 +121,7 @@ router.get('/preview/:filter', async(req, res) => {
     }
 })
 
-
+//get filtered questions
 router.get('/filter/:filter', async (req, res) => {
     try {
         const {filter} = req.params
@@ -140,6 +134,7 @@ router.get('/filter/:filter', async (req, res) => {
     }
 })
 
+//get questions with tag
 router.get('/filter/tag/:tag', async (req, res) => {
     try {
         const {tag} = req.params
@@ -152,7 +147,8 @@ router.get('/filter/tag/:tag', async (req, res) => {
     }
 })
 
-router.put('/:questionId/accept/:answerId', async (req, res) => {
+//mark answer as accepted
+router.put('/:questionId/accept/:answerId',[isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const answerId = parseInt(req.params.answerId)
         const questionId = parseInt(req.params.questionId)
@@ -172,6 +168,25 @@ router.put('/:questionId/accept/:answerId', async (req, res) => {
     }
 
 })
+
+async function isAuthorized(req: Request, res: Response, next: NextFunction) {
+    try {
+        const questionId = parseInt(req.params.questionId)
+        const question = await questionService.getQuestionById(questionId)
+
+        if(!question) throw new Error()
+            
+        const user = req.user as UserPass
+        
+        if (question.user_id == user.id) {
+            return next();
+        } else {
+            throw new Error('Not authorized')
+        }
+    } catch (error) {
+        res.sendStatus(404)
+    }
+}
 
 
 export default router

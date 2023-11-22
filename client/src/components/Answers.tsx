@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {questionService, answerService, tagService, commentService, profileService, favoriteService} from '../service'
 import { Question, Answer, Tag, QuestionComment, Profile, AnswerComment} from '../types'
 import { useParams, Link } from 'react-router-dom';
-import { ProfileContext } from '../context/Context';
+import { ProfileContext, AuthContext } from '../context/Context';
 import Pfp from './Pfp';
 
 import sortDown from '../assets/sort-down.svg'
@@ -21,37 +21,51 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
 
     const [answers, setAnswers] = useState<Answer[]>([])
     const {profile} = useContext(ProfileContext)
+    const {isAuthenticated} = useContext(AuthContext)
     const [descending, setDescending] = useState(true)
     const [sortBy, setSortBy] = useState<'score' | 'latest'>('score')
-    const [userHasVoted, setUserHasVoted] = useState(false)
+    const [userHasVoted, setUserHasVoted] = useState<number[]>([])
     const [favorites, setFavorites] = useState<number[]>([])
 
     
     
 
     useEffect(() => {
-        setAnswers(prev => {
-            return prev.sort((a, b) => {
-                const scoreA = a.upvotes - a.downvotes
-                const scoreB = b.upvotes - b.downvotes
-                const dateA = new Date(a.updated_at).getTime()
-                const dateB = new Date(b.updated_at).getTime()
-                if(sortBy == 'score') return descending? scoreB - scoreA : scoreA - scoreB
-                if(sortBy == 'latest') return descending? dateB - dateA : dateA - dateB
-                return 0
-            });
-        })
+        
+        sortAnswers(answers, descending)
     }, [sortBy, descending]);
+
+    const sortAnswers = (answers: Answer[], descending: boolean) => {
+        let sorted;
+    
+        switch (sortBy) {
+          case 'score':
+            sorted = [...answers].sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes));
+            break;
+          case 'latest':
+            sorted = [...answers].sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+            break;
+          default:
+            sorted = answers;
+        }
+    
+        if (!descending) {
+          sorted.reverse();
+        }
+    
+        setAnswers(sorted);
+    };
 
 
     useEffect(() => {
         const fetch = async() => {
             if(!question.question_id) return
             try {
+                const answers = await answerService.getAll(question.question_id)
+                sortAnswers(answers, true)
                 const favorites = await favoriteService.getFavoriteIds()
                 setFavorites(favorites)
-                const answers = await answerService.getAll(question.question_id)
-                setAnswers(answers)
+                setDescending(true)
             } catch (error) {
                 console.error(error);
             }
@@ -62,7 +76,7 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
     
 
     const acceptAnswer = async(answer: Answer) => {
-        if(answer.user_id == profile.user_id || question.user_id != profile.user_id) return;
+        if(question.user_id != profile.user_id) return;
         setAnswers(prev => {
             return prev.map(a => {
                 if(a.answer_id == answer.answer_id) {
@@ -81,8 +95,8 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
     }
 
     const vote = async (answer: Answer, vote: 'upvote' | 'downvote') => {
-        if(answer.user_id == profile.user_id || userHasVoted) return
-        setUserHasVoted(true)
+        if(answer.user_id == profile.user_id || userHasVoted.includes(answer.answer_id)) return
+        setUserHasVoted(prev => [...prev, answer.answer_id])
         setAnswers(prev => {
             return prev.map(a => {
                 if(a.answer_id == answer.answer_id) {
@@ -112,10 +126,10 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
             <div className='wide-75'>
                 <div className='card bg-white row'>
                     <p>{answers.length} answers</p>
-                    <button className='text-black' onClick={() => setSortBy('latest')}>Sort by latest</button>
-                    <img className='icon-s pointer' onClick={() => setDescending(prev => !prev)} src={descending? sortDown : sortUp} alt="" />
-                    <button className='text-black' onClick={() => setSortBy('score')}>Sort by score</button>
-                    {profile.user_id != question.user_id && <>
+                    <button className={`text-black ${sortBy == 'score'? 'select-underline' : ''}`} onClick={() => setSortBy('score')}>Sort by score</button>
+                    <img className='icon-s pointer' onClick={() => setDescending(prev => !prev)} src={descending? sortDown : sortUp} alt={descending? 'desc' : 'asc'} />
+                    <button className={`text-black ${sortBy == 'latest'? 'select-underline' : ''}`} onClick={() => setSortBy('latest')}>Sort by latest</button>
+                    {profile.user_id != question.user_id && isAuthenticated &&<>
                         <Link to={`/question/${question.question_id}/answer/create`} className="button bg-light-grey text-black fs-3">Post answer</Link>
                         <button onClick={() => setShowCreateComment(true)} className="button bg-light-grey text-black fs-3">Post comment</button>
                     </>}
@@ -137,9 +151,10 @@ type AnswerDetailsProps = {
     removeAnswer: (answer: Answer) => void
 }
 
-function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavorite, removeAnswer}: AnswerDetailsProps) {
+export function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavorite, removeAnswer}: AnswerDetailsProps) {
 
     const {profile} = useContext(ProfileContext)
+    const {isAuthenticated} = useContext(AuthContext)
     const [showCreateAnswerComment, setShowCreateComment] = useState<number | false>(false)
     const [comments, setComments] = useState<AnswerComment[]>([])
 
@@ -178,7 +193,7 @@ function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavori
 
 
     const postedQuestion = question.user_id == profile.user_id
-    const postedAnswer = answer.user_id == profile.user_id
+    const postedAnswer = answer.user_id == profile.user_id 
     let acceptIconClass = answer.accepted? 'accepted' : postedQuestion? 'accept' : 'vis-hide'
     const favoriteIcon = isFavorite? favorited : favorite
 
@@ -192,22 +207,22 @@ function AnswerDetails({answer, question, vote, accept, favoriteAnswer, isFavori
         <div className='card bg-white wide-100'>
             <div className='row'>
                 <UsernamePfp userId={answer.user_id} withPfp={true} />
-                {!postedAnswer && <img onClick={() => favoriteAnswer(answer)} className={`icon-m pointer`} src={favoriteIcon} alt=""/>}
-                <img onClick={() => accept(answer)} className={`icon-m ${acceptIconClass} pointer`} src={accepted} alt=""/>
+                {!postedAnswer && <img onClick={() => favoriteAnswer(answer)} className={`icon-m pointer`} src={favoriteIcon} alt={isFavorite? 'favorited' : 'not-favorited'}/>}
+                <img onClick={() => accept(answer)} className={`icon-m ${acceptIconClass} ${postedQuestion? 'pointer' : ''}`} src={accepted} alt={answer.accepted? 'accepted' : 'not-accepted'}/>
                 <p className='fs-5'>Asked {formatDate(answer.created_at)}</p>
                 <p className='fs-5'>Modified {formatDate(answer.updated_at)}</p>
             </div>
             <div className="row space-between">
                 <div className='row'>
                     <div className='flex-vert align-center gap-05'>
-                        <img onClick={() => vote(answer, 'upvote')} className='icon-s pointer' src={upvote} alt="" />
+                        {!postedAnswer && <img onClick={() => vote(answer, 'upvote')} className='icon-s pointer' src={upvote} alt="upvote" />}
                         <p className='fs-3 vote-count'>{answer.upvotes - answer.downvotes}</p>
-                        <img onClick={() => vote(answer, 'downvote')} className='icon-s pointer' src={downvote} alt="" />
+                        {!postedAnswer && <img onClick={() => vote(answer, 'downvote')} className='icon-s pointer' src={downvote} alt="downvote" />}
                     </div>
                     <p className='text-body'>{answer.body}</p>
                 </div>
                 <div className="flex-vert align-start gap-1">
-                    {answer.user_id != profile.user_id && <button onClick={() => setShowCreateComment(answer.answer_id)} className="button bg-light-grey text-black fs-3">Post comment</button>}
+                    {answer.user_id != profile.user_id && isAuthenticated && <button onClick={() => setShowCreateComment(answer.answer_id)} className="button bg-light-grey text-black fs-3">Post comment</button>}
                 </div>
             </div>
             <div>

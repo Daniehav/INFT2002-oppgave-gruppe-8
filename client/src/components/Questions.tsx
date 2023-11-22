@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {questionService, answerService, tagService, commentService, profileService, favoriteService} from '../service'
 import { Question, Answer, Tag, QuestionComment, Profile, AnswerComment} from '../types'
 import { useParams, Link } from 'react-router-dom';
-import { ProfileContext } from '../context/Context';
+import { ProfileContext, AuthContext } from '../context/Context';
 import { Answers } from './Answers';
 import Pfp from './Pfp';
 import { Comments, CreateComment } from './Comments';
@@ -68,6 +68,7 @@ export function QuestionDetails() {
 
 
     const tagsElements = questionTags.map((tag, i) => <div key={i} className='tag fs-5'>{tag.name}</div>)
+    if(!question.question_id) return <div></div>
 
     return <div className='question-page'>
         <div className="wide-75 card bg-white">
@@ -131,8 +132,9 @@ export function CreateQuestion() {
 
     const {profile} = useContext(ProfileContext)
     const navigate = useNavigate()
+    const {isAuthenticated} =  useContext(AuthContext)
 
-    const [question, setQuestion] = useState<Question>({} as Question)
+    const [question, setQuestion] = useState<Question>({title: '', body: ''} as Question)
     const {title, body} = question
     const [questionTags, setQuestionTags] = useState<Tag[]>([])
     const tagIds = questionTags.map(t => t.tag_id)
@@ -140,6 +142,8 @@ export function CreateQuestion() {
     const [tagInput, setTagInput] = useState('')
 
     useEffect(() => {
+        console.log(question);
+        if(!isAuthenticated) navigate('/login')
         fetchTags()
     },[])
     
@@ -203,24 +207,24 @@ export function CreateQuestion() {
 
     const tagOptions = allTags.filter(t => filter.test(t.name) && !questionTags.map(t => t.tag_id).includes(t.tag_id)).slice(0,5).map((t,i) => <button className='fs-3 tag-option' key={i} onClick={() => selectTags(t)}>{t.name}</button>)
 
-
+    if(!isAuthenticated) return <div></div>
     return(
         <div className='card bg-white wide-75 flex-vert'>
             <table className='table gap-1'>
                 <tbody>
                     <tr>
                         <td><label htmlFor="title">Title:</label></td>
-                        <td className='wide-100'><input className='input wide-75' name='title' type="text" value={question.title} onChange={handleChange}></input></td>
+                        <td className='wide-100'><input className='input wide-75' aria-label='title' name='title' type="text" value={question.title} onChange={handleChange}></input></td>
                     </tr>
                     <tr>
                         <td></td>
-                        <td className='wide-100'><textarea className='textarea textarea--question wide-100' name='body' onChange={handleChange} value={question.body}></textarea></td>
+                        <td className='wide-100'><textarea className='textarea textarea--question wide-100' name='body' onChange={handleChange} value={question.body} aria-label='body'></textarea></td>
                     </tr>
                     <tr className='tag-row'>
                         <td>Tags</td>
                         <td className='relative'>
                             <div className='tag-search wide-25 bg-white'>
-                                <input value={tagInput} onChange={e => setTagInput(e.currentTarget.value)} className='input--tag' type="text" />
+                                <input value={tagInput} onChange={e => setTagInput(e.currentTarget.value)} aria-label='tag-input' className='input--tag' type="text" />
                                 {tagInput.length > 0 && <div className='tag-options'>{tagOptions}</div>}
                             </div>
                             <button className='button add-tag bg-accent text-WHITE' onClick={addTag}>Add tag</button>
@@ -244,7 +248,7 @@ export function EditQuestion() {
     const {profile} = useContext(ProfileContext)
     const navigate = useNavigate()
 
-    const [question, setQuestion] = useState<Question>({} as Question)
+    const [question, setQuestion] = useState<Question>({title: '', body: ''} as Question)
     const {title, body} = question
     const [questionTags, setQuestionTags] = useState<Tag[]>([])
     const [newTags, setNewTags] = useState<Tag[]>([])

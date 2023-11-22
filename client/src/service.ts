@@ -63,10 +63,10 @@ class QuestionService {
       return axios.get<Question[]>('/questions/filter/tag/'+tag).then((response) => response.data);
   }
   edit(questionId: number, title: string, body: string) {
-    return axios.put('/questions/'+ questionId, {title, body}).then((response) => response.data.id);
+    return axios.put('/questions/'+ questionId, {title, body}).then((response) => response.data);
   }
   delete(id: number) {
-    return axios.delete('/questions/' + id).then((response) => response.data.id);
+    return axios.delete('/questions/' + id).then((response) => response.data);
   }
   accept(questionId: number, answerId: number, userId: number) {
     return axios.put(`/questions/${questionId}/accept/${answerId}`,{userId}).then(response => response.data)
@@ -80,8 +80,8 @@ class AnswerService {
   getAll(qId: number) {
     return axios.get<Answer[]>('/answers/question/' + qId).then((response) => response.data);
   }
-  create(questionId:number, answer: string) {
-    return axios.post<number>('/answers',{questionId,answer}).then(response => response.data)
+  create(questionId:number, body: string) {
+    return axios.post<number>('/answers',{questionId,body}).then(response => response.data)
   }
   edit(answer: Answer) {
     return axios.put('/answers/'+ answer.answer_id, {body: answer.body}).then((response) => response.data);

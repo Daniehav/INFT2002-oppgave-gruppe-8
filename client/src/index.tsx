@@ -18,7 +18,6 @@ import { EditAnswer, CreateAnswer} from './components/Answers'
 
 function App() {
 
-	const [searching, setSearching] = useState(false)
 	const {isDark} = useContext(ThemeContext)
 	const {isAuthenticated, setIsAuthenticated} = useContext(AuthContext)
 	const {setProfile} = useContext(ProfileContext)
@@ -33,7 +32,7 @@ function App() {
 			setProfile(profile)
 		} 
 		checkAuth()
-    }, []);
+    }, [isAuthenticated]);
 
 	return(
 		<div className={`app bg-light-grey text-black ${isDark? 'dark-mode' : ''}`}>
@@ -78,17 +77,17 @@ export default function Header() {
 
 			 <div className='nav gap-2 flex align-center'>
 				<Searchbar />
+            </div>
+            {isAuthenticated? <>
                 <div className='pointer' onClick={() => setShowMenu(true)}>
                     <Pfp size='s' pfp={profile.profile_picture} level={profile.level} />
                 </div>
-            </div>
-            {isAuthenticated? <>
-			<div className={`user-menu ${!showMenu && 'user-menu--hide'}`}>
-				<button className='text-black' onClick={() => navigate('/')}>Home</button>
-				<button className='text-black' onClick={() => navigate('/profile')}>Profile</button>
-				<button className='text-black' onClick={toggleTheme}>{isDark? 'Light Mode' :'Dark Mode'}</button>
-				<button className='text-black' onClick={logOut}>Log out</button>
-			</div>
+				<div className={`user-menu ${!showMenu && 'user-menu--hide'}`}>
+					<button className='text-black' onClick={() => navigate('/')}>Home</button>
+					<button className='text-black' onClick={() => navigate('/profile')}>Profile</button>
+					<button className='text-black' onClick={toggleTheme}>{isDark? 'Light Mode' :'Dark Mode'}</button>
+					<button className='text-black' onClick={logOut}>Log out</button>
+				</div>
 			</>
 			:
 			<button onClick={() => navigate('/login')}>Sign In</button>}

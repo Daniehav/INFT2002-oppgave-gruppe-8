@@ -1,11 +1,12 @@
 import express, {Response, NextFunction, Request} from 'express'
 import { favoriteService } from '../service'
 import { UserPass } from './auth-router'
+import { isAuthenticated } from '../routerMiddlewares'
 
 
 const router = express.Router()
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId',isAuthenticated , async (req, res) => {
     try {
         const userId = parseInt(req.params.userId)
         const answers = await favoriteService.getFavorites(userId)
@@ -47,10 +48,5 @@ router.post('/:answerId', isAuthenticated, async (req, res) => {
     }
 })
 
-function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-}
 
 export default router

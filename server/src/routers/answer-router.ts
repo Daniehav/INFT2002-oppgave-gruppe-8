@@ -1,4 +1,4 @@
-import express, {Response, NextFunction} from 'express'
+import express, {Request, Response, NextFunction} from 'express'
 import { answerService, authService } from '../service'
 import { UserPass } from './auth-router'
 import { isAuthenticated } from '../routerMiddlewares'
@@ -31,7 +31,7 @@ const router = express.Router()
 router.post('/', isAuthenticated, async (req : any, res) => {
     try {
         const user = req.user
-        const question = await answerService.createAnswer(user.id, req.body.questionId ,req.body.answer);
+        const question = await answerService.createAnswer(user.id, req.body.questionId ,req.body.body);
         res.status(201).json(question);
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'User not found') {
@@ -41,7 +41,7 @@ router.post('/', isAuthenticated, async (req : any, res) => {
     }
 });
 
-router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
+router.get('/:answerId', async (req: any, res: Response) => {
     try {
         const answerId = parseInt(req.params.answerId);
         const answer = await answerService.getAnswerById(answerId);
@@ -56,7 +56,7 @@ router.get('/:answerId', isAuthenticated, async (req: any, res: Response) => {
     }
 });
 
-router.get('/question/:questionId', isAuthenticated, async (req: any, res: Response) => {
+router.get('/question/:questionId', async (req: any, res: Response) => {
     try {
         const questionId = parseInt(req.params.questionId);
         const questions = await answerService.getAllAnswersByQuestion(questionId);
@@ -67,7 +67,7 @@ router.get('/question/:questionId', isAuthenticated, async (req: any, res: Respo
     }
 });
 
-router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
+router.put('/:answerId', [isAuthenticated, isAuthorized], async (req : any, res : Response) => {
     try {
         const userId = req.user.id
         const answerId = parseInt(req.params.answerId);
@@ -89,16 +89,16 @@ router.put('/:answerId', isAuthenticated, async (req : any, res : Response) => {
 });
 
 
-router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
+router.delete('/:answerId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const answerId = parseInt(req.params.answerId, 10);
+        const user = req.user as UserPass
 
         if (isNaN(answerId)) {
             return res.status(400).send('Invalid question ID');
         }
         const answer = await answerService.getAnswerById(answerId); // check if answer exist
-        const userId = (await authService.getUser(req.session.passport.user.username)).user_id;
-        await answerService.deleteAnswer(answer.answer_id, userId);
+        await answerService.deleteAnswer(answer.answer_id, user.id);
         res.status(204).send();
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'No question found') {
@@ -110,7 +110,7 @@ router.delete('/:answerId', isAuthenticated, async (req: any, res) => {
     }
 });
 
-router.post('/:answerId/vote', async(req, res) => {
+router.post('/:answerId/vote', isAuthenticated, async(req, res) => {
     try {
         
         const answerId = parseInt(req.params.answerId)
@@ -133,11 +133,13 @@ router.post('/:answerId/vote', async(req, res) => {
         }
         
     } catch (error) {
+        console.log(error);
+        
         res.status(500).send(error)
     }
 
 })
-router.post(':answerId/favorite', async(req, res) => {
+router.post(':answerId/favorite',isAuthenticated, async(req, res) => {
     const answerId = parseInt(req.params.answerId)
     const user = req.user as UserPass
     const favorite = await answerService.getFavorite(answerId, user.id)
@@ -149,6 +151,22 @@ router.post(':answerId/favorite', async(req, res) => {
         res.status(200).json(id)
     }
 })
+
+
+async function isAuthorized(req: Request, res: Response, next: NextFunction) {
+    const answerId = parseInt(req.params.answerId)
+    const answer = await answerService.getAnswerById(answerId)
+        
+    const user = req.user as UserPass
+    
+    if (answer.user_id == user.id) {
+        console.log('authorized');
+        
+        return next();
+    } else {
+        throw new Error('Not authorized')
+    }
+}
 
 
 
