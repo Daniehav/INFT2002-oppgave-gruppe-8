@@ -4,11 +4,12 @@ This is a application which gives you the ability to ask and answer questions.
 
 ## Setup database connections
 
-The following section describes how to set up the database for the application
+The following section describes how to set up the database for the application. Make sure to be connected to NTNU's network.
+You can either use the existing connection or create new database and set up the connection yourself.
 
 ### Use existing database connection
 
-In the source code an existing database connection is configured. Use this configuration to use the existing databases for the application and the tests.
+In the source code is an existing database connection is configured. Use this configuration to use the existing databases for the application and the tests.
 
 ### Create new database
 
