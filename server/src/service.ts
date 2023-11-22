@@ -160,9 +160,6 @@ class QuestionService {
                     return reject(err);
                 }
 
-                if (Array.isArray(results) && results.length > 0 && Array.isArray(results[0])) {
-                    return reject(new Error('Unexpected result format'));
-                }
                 resolve(results as Question[]);
             });
         });
@@ -301,16 +298,12 @@ class AnswerService {
     getAnswerById(answerId: number): Promise<Answer> {
         return new Promise((resolve, reject) => {
             pool.query(
-                'SELECT * FROM Answers WHERE answer_id = ? LIMIT 1', [answerId], (err, results) => {
+                'SELECT * FROM Answers WHERE answer_id = ?', [answerId], (err, results: RowDataPacket[]) => {
                     if (err) {
                         console.error("Failed to get answer", err);
                         return reject(err);
                     }
-                    const question = Array.isArray(results) ? results[0] : results;
-                    if (!question) {
-                        return reject(new Error('No answer found'));
-                    }
-                    resolve(question as Answer);
+                    resolve(results[0] as Answer);
                 }
             );
         });

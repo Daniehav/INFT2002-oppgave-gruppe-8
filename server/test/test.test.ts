@@ -262,7 +262,7 @@ describe('Fetch answers (GET)', () => {
 });
 describe('Create answer (POST)', () => {
     test('Create answer (201 OK)', (done) => {
-        axios.post('/answers/', {questionId: 1, answer: 'jeg er usikker'}).then((res) => {
+        axios.post('/answers', {questionId: 1, body: 'jeg er usikker'},{headers: {id: 1}}).then((res) => {
             expect(res.status).toEqual(201);
             expect(res.data).toEqual(5);
             done();
@@ -276,17 +276,17 @@ describe('Delete answer (DELETE)', () => {
             done();
         });
     });
-    test('Delete answer (400 Invalid answer ID)', (done) => {
-        axios.delete('/answers/a').catch((err) => {
-            expect(err.response.status).toEqual(400);
-            expect(err.response.data).toEqual('Invalid answer ID');
+    test('Delete answer (400 Not authorized)', (done) => {
+        axios.delete('/answers/1',{headers: {id: 9}}).catch((err) => {
+            expect(err.response.status).toEqual(401);
+            expect(err.response.data).toEqual('Not Authorized');
             done();
         });
     });
     test('Delete answer (404 Answer not found)', (done) => {
         axios.delete('/answers/9').catch((err) => {
             expect(err.response.status).toEqual(404);
-            expect(err.response.data).toEqual('Answer not found');
+            expect(err.response.data).toEqual('No answer found');
             done();
         });
     });
@@ -301,7 +301,7 @@ describe('Edit answer (PUT)', () => {
     test('Edit answer (404 Answer not found)', (done) => {
         axios.put('/answers/8', {body: 'f'}, {headers: {id: 1}}).catch((err) => {
             expect(err.response.status).toEqual(404);
-            expect(err.response.data).toEqual('Answer not found');
+            expect(err.response.data).toEqual('No answer found');
             done();
         });
     });
