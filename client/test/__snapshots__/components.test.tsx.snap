@@ -112,6 +112,17 @@ exports[`Question components tests QuestionDetails renders question 1`] = `
         >
           Sort by latest
         </button>
+        <a
+          class="button bg-light-grey text-black fs-3"
+          href="/question/1/answer/create"
+        >
+          Post answer
+        </a>
+        <button
+          class="button bg-light-grey text-black fs-3"
+        >
+          Post comment
+        </button>
       </div>
     </div>
     <div
@@ -283,7 +294,13 @@ exports[`Question components tests QuestionDetails renders question 1`] = `
           </div>
           <div
             class="flex-vert align-start gap-1"
-          />
+          >
+            <button
+              class="button bg-light-grey text-black fs-3"
+            >
+              Post comment
+            </button>
+          </div>
         </div>
         <div />
       </div>
