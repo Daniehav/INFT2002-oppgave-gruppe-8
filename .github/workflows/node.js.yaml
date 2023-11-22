@@ -14,12 +14,6 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
-    env:  
-      MYSQL_HOST: 'mysql.stud.ntnu.no'
-      MYSQL_USER: 'daniehav_qa'
-      MYSQL_PASSWORD: 'qa'
-      MYSQL_DATABASE: 'daniehav_qa_test'
-
     steps:
     - uses: actions/checkout@v3
 
@@ -32,7 +26,12 @@ jobs:
         cache-dependency-path: |
           server/package-lock.json
           client/package-lock.json
-
+        
+      env:
+          MYSQL_HOST: 'mysql.stud.ntnu.no'
+          MYSQL_USER: 'daniehav_qa'
+          MYSQL_PASSWORD: 'qa'
+          MYSQL_DATABASE: 'daniehav_qa_test'
     # Install and test server
     - name: Install Server Dependencies
       run: npm ci
