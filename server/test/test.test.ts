@@ -28,10 +28,7 @@ const testTags: Tag[] = [
     {tag_id: 2, tag: 'alfabet', count: 0, created_at: new Date(), updated_at: new Date()},
     {tag_id: 3, tag: 'mat', count: 0, created_at: new Date(), updated_at: new Date()},
 ];
-/*
-'2023-11-18T13:13:13', '2023-11-19T15:13:13'
-'2023-11-18T09:24:00', '2023-11-18T09:24:00'
-*/
+
 const testAnswers: Answer[] = [
     {answer_id: 1, question_id: 1, user_id: 1, body: 'l', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
     {answer_id: 2, question_id: 1, user_id: 2, body: 'b', upvotes: 0, downvotes: 0, accepted: false, created_at: new Date(), updated_at: new Date()},
@@ -52,11 +49,6 @@ const testUsers: TestUser[] = [
     {user_id: 1, email: '', username: '', password: 'password1', salt:  crypto.randomBytes(16), hashed_password: null},
     {user_id: 2, email: '', username: '', password: 'password2', salt:  crypto.randomBytes(16), hashed_password: null},
     {user_id: 3, email: '', username: '', password: 'password3', salt:  crypto.randomBytes(16), hashed_password: null},
-];
-const testProfiles: Profile[] = [
-    {id: 1, user_id: 1, profile_picture: null, bio: '', level: 1, points: 0},
-    {id: 2, user_id: 2, profile_picture: null, bio: '', level: 1, points: 0},
-    {id: 3, user_id: 3, profile_picture: null, bio: '', level: 1, points: 0},
 ];
 
 
@@ -167,35 +159,12 @@ describe('Fetch questions (GET)', () => {
         });
     });
     test('Fetch question by question_id (404 not found)', (done) => {
-        axios.get('/questions/5').then((res) => {
-            done()
-        }).catch(err => {
+        axios.get('/questions/5').catch(err => {
             expect(err.response.status).toEqual(404);
             expect(err.response.data).toEqual('Question not found');
             done();
         }) 
     });
-    // test('Fetch a preview of filtered questions (500 Internal Server Error)', (done) => {
-    //     axios.get('/questions/preview/unanswered').then((res) => {
-    //         expect(res.status).toEqual(500);
-    //         expect(res.data).toEqual('Internal Server Error');
-    //         done();
-    //     });
-    // });
-    // test('Fetch filtered questions (500 Internal Server Error)', (done) => {
-    //     axios.get('/questions/filter/popular').then((res) => {
-    //         expect(res.status).toEqual(500);
-    //         expect(res.data).toEqual('Internal Server Error');
-    //         done();
-    //     });
-    // });
-    // test('Fetch questions by tag (500 Internal Server Error)', (done) => {
-    //     axios.get("/questions/filter/tag/mat").then((res) => {
-    //         expect(res.status).toEqual(500);
-    //         expect(res.data).toEqual('Internal Server Error');
-    //         done();
-    //     });
-    // });
 });
 
 describe('Create questions (POST)', () => {
@@ -262,7 +231,11 @@ describe('Fetch answers (GET)', () => {
 });
 describe('Create answer (POST)', () => {
     test('Create answer (201 OK)', (done) => {
+<<<<<<< Updated upstream
         axios.post('/answers', {questionId: 1, body: 'jeg er usikker'},{headers: {id: 1}}).then((res) => {
+=======
+        axios.post('/answers', {questionId: 1, body: 'jeg er usikker'}, {headers: {id: 3}}).then((res) => {
+>>>>>>> Stashed changes
             expect(res.status).toEqual(201);
             expect(res.data).toEqual(5);
             done();
@@ -276,19 +249,33 @@ describe('Delete answer (DELETE)', () => {
             done();
         });
     });
+<<<<<<< Updated upstream
     test('Delete answer (400 Not authorized)', (done) => {
         axios.delete('/answers/1',{headers: {id: 9}}).catch((err) => {
+=======
+    test('Delete answer (401 Not authorized)', (done) => {
+        axios.delete('/answers/3',{headers: {id: 9}}).catch((err) => {
+>>>>>>> Stashed changes
             expect(err.response.status).toEqual(401);
             expect(err.response.data).toEqual('Not Authorized');
             done();
         });
     });
     test('Delete answer (404 Answer not found)', (done) => {
+<<<<<<< Updated upstream
         axios.delete('/answers/9').catch((err) => {
             expect(err.response.status).toEqual(404);
             expect(err.response.data).toEqual('No answer found');
             done();
         });
+=======
+            axios.delete('/answers/9').catch(err => {
+                expect(err.response.status).toEqual(404);
+                expect(err.response.data).toEqual('No answer found');
+                done()
+            })
+            
+>>>>>>> Stashed changes
     });
 });
 describe('Edit answer (PUT)', () => {
@@ -298,8 +285,15 @@ describe('Edit answer (PUT)', () => {
             done();
         });
     });
+    test('Edit answer (401 Not authorized)', (done) => {
+        axios.put('/answers/1', {body: 'f'}, {headers: {id: 9}}).catch((err) => {
+            expect(err.response.status).toEqual(401);
+            expect(err.response.data).toEqual('Not Authorized');
+            done();
+        });
+    });
     test('Edit answer (404 Answer not found)', (done) => {
-        axios.put('/answers/8', {body: 'f'}, {headers: {id: 1}}).catch((err) => {
+        axios.put('/answers/9', {body: 'f'}).catch((err) => {
             expect(err.response.status).toEqual(404);
             expect(err.response.data).toEqual('No answer found');
             done();
