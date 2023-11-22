@@ -231,11 +231,7 @@ describe('Fetch answers (GET)', () => {
 });
 describe('Create answer (POST)', () => {
     test('Create answer (201 OK)', (done) => {
-<<<<<<< Updated upstream
-        axios.post('/answers', {questionId: 1, body: 'jeg er usikker'},{headers: {id: 1}}).then((res) => {
-=======
         axios.post('/answers', {questionId: 1, body: 'jeg er usikker'}, {headers: {id: 3}}).then((res) => {
->>>>>>> Stashed changes
             expect(res.status).toEqual(201);
             expect(res.data).toEqual(5);
             done();
@@ -249,33 +245,19 @@ describe('Delete answer (DELETE)', () => {
             done();
         });
     });
-<<<<<<< Updated upstream
     test('Delete answer (400 Not authorized)', (done) => {
         axios.delete('/answers/1',{headers: {id: 9}}).catch((err) => {
-=======
-    test('Delete answer (401 Not authorized)', (done) => {
-        axios.delete('/answers/3',{headers: {id: 9}}).catch((err) => {
->>>>>>> Stashed changes
             expect(err.response.status).toEqual(401);
             expect(err.response.data).toEqual('Not Authorized');
             done();
         });
     });
     test('Delete answer (404 Answer not found)', (done) => {
-<<<<<<< Updated upstream
         axios.delete('/answers/9').catch((err) => {
             expect(err.response.status).toEqual(404);
             expect(err.response.data).toEqual('No answer found');
             done();
         });
-=======
-            axios.delete('/answers/9').catch(err => {
-                expect(err.response.status).toEqual(404);
-                expect(err.response.data).toEqual('No answer found');
-                done()
-            })
-            
->>>>>>> Stashed changes
     });
 });
 describe('Edit answer (PUT)', () => {
