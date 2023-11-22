@@ -25,9 +25,11 @@ function App() {
     
     useEffect(() => {
 		const checkAuth = async () => {
+			//check if user is authenticated
 			const id = await authService.checkAuth()
 			setIsAuthenticated(true)
 			if(!id) return
+			//get profile data of user
 			const profile = await profileService.get(id)
 			setProfile(profile)
 		} 

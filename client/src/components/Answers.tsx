@@ -31,10 +31,11 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
     
 
     useEffect(() => {
-        
+        //call sort on sortBy or descending update
         sortAnswers(answers, descending)
     }, [sortBy, descending]);
 
+    //sort answers based on score or lastUpdated, descending or ascending
     const sortAnswers = (answers: Answer[], descending: boolean) => {
         let sorted;
     
@@ -61,8 +62,10 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
         const fetch = async() => {
             if(!question.question_id) return
             try {
+                // fetch answers of question
                 const answers = await answerService.getAll(question.question_id)
                 sortAnswers(answers, true)
+                // fetch ids of users favorited posts
                 const favorites = await favoriteService.getFavoriteIds()
                 setFavorites(favorites)
             } catch (error) {
@@ -74,6 +77,7 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
 
     
 
+    // mark this answer as accepted
     const acceptAnswer = async(answer: Answer) => {
         if(question.user_id != profile.user_id) return;
         setAnswers(prev => {
@@ -87,12 +91,14 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
         })
         await questionService.accept(question.question_id, answer.answer_id, answer.user_id)
     }
+    // mark answer as favorite
     const favoriteAnswer = async(answer: Answer) => {
         if(answer.user_id == profile.user_id) return;
         setFavorites(prev => [...prev, answer.answer_id])
         const id = await favoriteService.setFavorite(answer.answer_id)
     }
 
+    //vote on answer
     const vote = async (answer: Answer, vote: 'upvote' | 'downvote') => {
         if(answer.user_id == profile.user_id || userHasVoted.includes(answer.answer_id)) return
         setUserHasVoted(prev => [...prev, answer.answer_id])
@@ -107,11 +113,12 @@ export function Answers({question, setShowCreateComment}: {question: Question, s
         })
         await answerService.vote(answer.answer_id, vote)
     }
-
+    //remove answer from ui
     const removeAnswer = (answer: Answer) => {
         setAnswers(prev => prev.filter(a => a.answer_id != answer.answer_id))
     }
 
+    // map answers to jsx elements
     const answersElements = answers.map((answer, i) => {
         const isFavorite = favorites.includes(answer.answer_id)
         return <div key={i} className='wide-75'>
@@ -162,18 +169,22 @@ export function AnswerDetails({answer, question, vote, accept, favoriteAnswer, i
     useEffect(() => {
         if(!answer.answer_id) return
         const fetch = async () => {
+            //fetch comments of answer
             const comments = await commentService.get('answer',answer.answer_id)
             setComments(comments as AnswerComment[])
         }
         fetch()
     }, []);
 
+    // add comment to ui
     const addComment = (comment: string, commentId: number) => {
         if(!comment || !commentId) return
         setShowCreateComment(false)
         const answerComment = {body: comment, comment_id: commentId, user_id: profile.user_id, answer_id: answer.answer_id} as AnswerComment
         setComments(prev => [...prev, answerComment])
     } 
+
+    //change comment in ui
     const editComment = (comment: string, commentId: number) => {
         if(!comment || !commentId) return
         setComments(prev => prev.map(c => {
@@ -184,7 +195,7 @@ export function AnswerDetails({answer, question, vote, accept, favoriteAnswer, i
             }
         }))
     } 
-    //removes from state to update component
+    //removes comment from ui
     const deleteComment = (commentId: number) => {
         if(!commentId) return
         setComments(prev => prev.filter((c) => c.comment_id != commentId)) 
@@ -195,6 +206,7 @@ export function AnswerDetails({answer, question, vote, accept, favoriteAnswer, i
     const postedAnswer = answer.user_id == profile.user_id 
     let acceptIconClass = answer.accepted? 'accepted' : postedQuestion? 'accept' : 'vis-hide'
     const favoriteIcon = isFavorite? favorited : favorite
+
 
     const deleteAnswer = async (answerId: number) => {
         removeAnswer(answer)
@@ -270,6 +282,7 @@ export function EditAnswer() {
     useEffect(() => {
         if(!answerId) return
         const fetch = async () => {
+            //fetch answer
             const answer = await answerService.get(answerId)
             setAnswer(answer)
         }

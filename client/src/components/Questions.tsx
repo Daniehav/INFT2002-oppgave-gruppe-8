@@ -28,11 +28,13 @@ export function QuestionDetails() {
     useEffect(() => {
         const fetchQuestion = async () => {
             if(isNaN(id)) return
-            
+            //fetch question
             const question = await questionService.get(id)
             setQuestion(question)
+            //fetch tags of question
             const tags = await tagService.getQuestionTags(id)
             setQuestionTags(tags)
+            //fetch comments of question
             const comments = await commentService.get('question',question.question_id)
             setComments(comments as QuestionComment[])
         }
@@ -44,13 +46,14 @@ export function QuestionDetails() {
         navigate('/')
     }
 
+    //add comment to ui
     const addComment = (comment: string, commentId: number) => {
         if(!comment) return
         setShowCreateComment(false)
         const questionComment = {body: comment, comment_id: commentId, user_id: profile.user_id, question_id: question.question_id} as QuestionComment
         setComments(prev => [...prev, questionComment])
     } 
-
+    //change comment in ui
     const editComment = (comment: string, commentId: number) => {
         if(!comment || !commentId) return
         setComments(prev => prev.map(c => {
@@ -61,6 +64,8 @@ export function QuestionDetails() {
             }
         }))
     } 
+
+    //remove comment from ui
     const deleteComment = (commentId: number) => {
         if(!commentId) return
         setComments(prev => prev.filter((c) => c.comment_id != commentId)) 
@@ -164,6 +169,7 @@ export function CreateQuestion() {
         })
     }
 
+    //add tag to list, if tag doesnt exist => create tag
     const addTag = async () => {
         if(!tagInput) return
         const tag = allTags.find(t => t.name == tagInput)
@@ -201,16 +207,18 @@ export function CreateQuestion() {
         }
     }
 
+    // regex to filter for name, space and case insensetive 
     const regexPattern = tagInput
         .replace(/\s+/g, '\\s*')
         .split('')
         .join('\\s*');
     const filter = new RegExp(regexPattern, 'i');
 
-
+    // apply regex and map results to jsx elements 
     const tagOptions = allTags.filter(t => filter.test(t.name) && !questionTags.map(t => t.tag_id).includes(t.tag_id)).slice(0,5).map((t,i) => <button className='fs-3 tag-option' key={i} onClick={() => selectTags(t)}>{t.name}</button>)
 
     if(!isAuthenticated) return <div></div>
+    
     return(
         <div className='card bg-white wide-75 flex-vert'>
             <table className='table gap-1'>

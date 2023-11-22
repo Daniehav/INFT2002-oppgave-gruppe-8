@@ -56,6 +56,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
         e.preventDefault()
         if(!username || !password || password !== confirmPassword) return;
         setDuplError(false)
+        //create user
         authService.signUp(username, email, password)
         .then((userId) => {
             setProfile(prev => {
@@ -65,6 +66,7 @@ function SignUpForm({signedUp, setSignedUp}: signUpProps){
             })
             setIsAuthenticated(true)
             setSignedUp(true)
+            //if username is taken
         }).catch(error => {if(error.response.data.errno == 1062) setDuplError(true)});
     }
 

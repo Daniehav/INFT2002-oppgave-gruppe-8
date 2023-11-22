@@ -11,11 +11,13 @@ export function Comments({comments, removeComment, editComment, parent}: {commen
     const [showEdit, setShowEdit] = useState<number | false>(false)
     
 
+
     const deleteComment = async(c: QuestionComment | AnswerComment) => {
         await commentService.delete(c.comment_id, parent)
         removeComment(c.comment_id)
     }
 
+    // map comments to jsx elements
     const commentElements = comments.map((c,i) => {
         const postedComment = c.user_id == profile.user_id
         const edit = c.comment_id == showEdit

@@ -64,6 +64,8 @@ function ProfileComponent({profile, isYour}: {profile: Profile | null, isYour: b
         fetch()
     }, [profile]);
 
+
+    // questions of profile
     const questionElements = questions.map((q,i) => (
         <div key={i} onClick={() => navigate('/question/'+ q.question_id)} className="pointer card bg-white wide-75 row">
             <p className="fs-2">{q.title}</p>
@@ -71,6 +73,7 @@ function ProfileComponent({profile, isYour}: {profile: Profile | null, isYour: b
             <p>Views: {q.views}</p>
         </div>
     ))
+    // favorites of profile
     const favoriteElements = favorites.map((a,i) => (
         <div key={i} onClick={() => navigate(`/question/${a.question_id}`)} className="pointer card bg-white wide-75">
             <p>Q: {a.question_title}</p>
