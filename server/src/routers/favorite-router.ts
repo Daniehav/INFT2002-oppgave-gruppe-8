@@ -6,6 +6,7 @@ import { isAuthenticated } from '../routerMiddlewares'
 
 const router = express.Router()
 
+// Gets favouites for a user
 router.get('/:userId',isAuthenticated , async (req, res) => {
     try {
         const userId = parseInt(req.params.userId)
@@ -30,6 +31,8 @@ router.get('/', isAuthenticated, async (req, res) => {
         res.status(500).send(error)
     }
 })
+
+// Set an answer as a favourite
 router.post('/:answerId', isAuthenticated, async (req, res) => {
     try {
         const user = req.user as UserPass

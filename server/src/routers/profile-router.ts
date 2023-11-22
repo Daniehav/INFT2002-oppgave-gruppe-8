@@ -14,12 +14,14 @@ export type Profile = {
 
 const router = express.Router()
 
+// Update user profile
 router.put('/:id', isAuthenticated, (req: Request, res: Response) => {
     const user = req.user as UserPass
     profileService.updateProfile(user.id, req.body.bio, req.body.pfp, req.body.displayName)
     res.status(200).send()
 }) 
 
+// Get a user profile based on id 
 router.get('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id)
@@ -35,6 +37,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
+// Get user profile based on username
 router.get('/u/:username', async (req, res) => {
     try {
         const username = req.params.username

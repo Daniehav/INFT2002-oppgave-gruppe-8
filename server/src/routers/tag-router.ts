@@ -11,7 +11,7 @@ export type Tag = {
 
 const router = express.Router()
 
-
+// Get all tags
 router.get('/', async (req, res) => {
     try {
         const tags = await tagService.getAll()
@@ -21,6 +21,8 @@ router.get('/', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 })
+
+// Create a tag
 router.post('/', async (req, res) => {
     try {
         const {tag} = req.body
@@ -36,6 +38,7 @@ router.post('/', async (req, res) => {
     }
 })
 
+// Get tags for a specific question
 router.get('/question/:questionId', async (req, res) => {
     try {
         const questionId = parseInt(req.params.questionId)
@@ -47,6 +50,7 @@ router.get('/question/:questionId', async (req, res) => {
     }
 })
 
+// Edit tags for a specific question
 router.post('/edit/:questionId', async (req, res) => {
     try {
         const questionId = parseInt(req.params.questionId)

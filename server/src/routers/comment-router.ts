@@ -22,6 +22,7 @@ export interface AnswerComment extends Comment {
 
 const router = express.Router()
 
+// Get comments for either an anaswer or a comment
 router.get('/:parent/:parentId', isAuthenticated, async (req, res) => {
     try {
         const {parent} = req.params
@@ -39,6 +40,8 @@ router.get('/:parent/:parentId', isAuthenticated, async (req, res) => {
         res.status(500).send(error)
     }
 })
+
+// Create a comment for either a question or an answer
 router.post('/:parent/:parentId', isAuthenticated, async (req, res) => {
     try {
         const user = req.user as UserPass
@@ -60,6 +63,7 @@ router.post('/:parent/:parentId', isAuthenticated, async (req, res) => {
     }
 })
 
+// Update a comment
 router.put('/:parent/:commentId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const commentId = parseInt(req.params.commentId)
@@ -81,6 +85,7 @@ router.put('/:parent/:commentId', [isAuthenticated, isAuthorized], async (req: R
     }
 })
 
+// Delete a comment
 router.delete('/:parent/:commentId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const commentId = parseInt(req.params.commentId)

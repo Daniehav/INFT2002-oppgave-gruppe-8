@@ -32,7 +32,7 @@ router.post('/',isAuthenticated, async (req: Request, res) => {
     }
 });
 
-//get question
+// Get a question
 router.get('/:questionId', async (req: Request, res) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -47,7 +47,7 @@ router.get('/:questionId', async (req: Request, res) => {
     }
 });
 
-//edit question
+// Update a question
 router.put('/:questionId', [isAuthenticated, isAuthorized], async (req : any, res : Response) => {
     try {
         const userId = req.user.id
@@ -60,7 +60,18 @@ router.put('/:questionId', [isAuthenticated, isAuthorized], async (req : any, re
 });
 
 
-//get questions of profile
+// Get all questions
+router.get('/', isAuthenticated, async (req: any, res: Response) => {
+    try {
+        const questions = await questionService.getAllQuestions();
+        res.status(200).json(questions);
+    } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Get all questions created by a specific user
 router.get('/profile/:userId', async (req,res) => {
     try {
         const questionId = parseInt(req.params.userId);
@@ -78,7 +89,7 @@ router.get('/profile/:userId', async (req,res) => {
     }
 })
 
-//delete questions
+//Delete a specific question
 router.delete('/:questionId', [isAuthenticated, isAuthorized], async (req: Request, res: Response) => {
     try {
         const questionId = parseInt(req.params.questionId);
@@ -101,7 +112,7 @@ router.delete('/:questionId', [isAuthenticated, isAuthorized], async (req: Reque
 });
 
 
-//search for questions
+// Search for a specific question
 router.get('/search/:query', (req, res) => {
     const query = req.params.query;
 
@@ -109,7 +120,7 @@ router.get('/search/:query', (req, res) => {
 });
 
 
-//get preview of filtered questions
+// Get a some questions based upon a filter
 router.get('/preview/:filter', async(req, res) => {
     try {
         const {filter} = req.params
