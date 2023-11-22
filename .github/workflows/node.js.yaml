@@ -14,6 +14,11 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x]
+    env:  
+      MYSQL_HOST: 'mysql.stud.ntnu.no'
+      MYSQL_USER: 'daniehav_qa'
+      MYSQL_PASSWORD: 'qa'
+      MYSQL_DATABASE: 'daniehav_qa_dev'
 
     steps:
     - uses: actions/checkout@v3
